@@ -47,7 +47,7 @@ The workflow keeps the execution path direct: check out the repository, then run
 
 ## Pull Request Comment Behavior
 
-The workflow posts a single pull request comment containing the standards result table. A hidden marker lets later runs find and update the same comment. This keeps reviewer visibility high while avoiding repeated comment spam.
+The workflow posts a single pull request comment with a clear pass/fail heading, emoji status indicators, the standards result table, and a link back to the workflow run. A hidden marker lets later runs find and update the same comment. This keeps reviewer visibility high while avoiding repeated comment spam.
 
 ## Adding More Rules
 

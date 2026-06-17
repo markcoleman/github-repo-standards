@@ -78,8 +78,30 @@ jobs:
             const summary = fs.existsSync(summaryPath)
               ? fs.readFileSync(summaryPath, 'utf8')
               : 'Repository standards did not produce a summary.';
-            const outcome = Number('${{ steps.standards.outputs.exit_code }}') === 0 ? 'passed' : 'failed';
-            const body = `${marker}\n${summary}\n\n_Status: ${outcome}. Last updated by ${context.workflow} on ${new Date().toISOString()}._`;
+            const passed = Number('${{ steps.standards.outputs.exit_code }}') === 0;
+            const statusIcon = passed ? '✅' : '❌';
+            const statusText = passed ? 'passed' : 'needs attention';
+            const statusMessage = passed
+              ? 'All configured repository standards are passing.'
+              : 'One or more repository standards need attention before this pull request is ready.';
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const visualSummary = summary
+              .replace(/^## Repository Standards\s*/m, '')
+              .replaceAll('| PASS |', '| ✅ Pass |')
+              .replaceAll('| FAIL |', '| ❌ Fail |')
+              .trim();
+            const body = [
+              marker,
+              `## ${statusIcon} Repository standards ${statusText}`,
+              '',
+              statusMessage,
+              '',
+              visualSummary,
+              '',
+              '---',
+              '',
+              `_Last updated by **${context.workflow}** on ${new Date().toISOString()} · [View workflow run](${runUrl})_`
+            ].join('\n');
 
             const {owner, repo} = context.repo;
             const issue_number = context.issue.number;
