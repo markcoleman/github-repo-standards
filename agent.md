@@ -21,4 +21,4 @@ When changing workflow behavior, review `.github/workflows/repo-standards.yml` a
 
 ## Design Intent
 
-The root `README.md` rule is the first standard because it is broadly useful, low cost, and easy to enforce. Future checks should follow the same pattern: high signal, low surprise, and clear remediation.
+The root `README.md` and `CODEOWNERS` rules are the first standards because they are broadly useful, low cost, and easy to enforce. Future checks should follow the same pattern: high signal, low surprise, and clear remediation.

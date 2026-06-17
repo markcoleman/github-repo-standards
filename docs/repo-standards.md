@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Repository standards make basic project expectations visible, automated, and consistent. The initial rule is deliberately simple: every repository must have a root-level `README.md` with content.
+Repository standards make basic project expectations visible, automated, and consistent. The initial rules are deliberately simple: every repository must have a root-level `README.md` with content and a populated `CODEOWNERS` file.
 
 A README matters because it gives contributors and maintainers one reliable place to understand:
 
@@ -20,6 +20,16 @@ The standards check requires:
 - with at least one byte of content by default.
 
 The path and minimum byte count are configurable in `.github/repo-standards/config.env`. The config file supports simple `KEY=value` lines and comments; it is parsed as data instead of evaluated as shell.
+
+## Rule: CODEOWNERS Required
+
+The standards check requires:
+
+- a file named `CODEOWNERS` at the repository root, or `.github/CODEOWNERS`,
+- at least one non-comment owner entry,
+- at least one owner listed for that entry.
+
+Ownership metadata helps reviewers, maintainers, and automation understand who is responsible for changes across the repository.
 
 ## Developer Experience
 
@@ -59,10 +69,10 @@ Example:
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ -f "CODEOWNERS" || -f ".github/CODEOWNERS" ]]; then
-  pass "CODEOWNERS is present" "Ownership metadata exists."
+if [[ -f "LICENSE" ]]; then
+  pass "License is present" "LICENSE exists at the repository root."
 else
-  fail "CODEOWNERS is present" "Add CODEOWNERS or .github/CODEOWNERS."
+  fail "License is present" "Add a root-level LICENSE file."
 fi
 ```
 
