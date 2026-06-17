@@ -41,28 +41,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          path: repository
-
-      - name: Checkout standards tooling
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ job.workflow_repository }}
-          ref: ${{ job.workflow_sha }}
-          path: standards-tooling
 
       - name: Run standards checks
         id: standards
         shell: bash
-        working-directory: repository
         run: |
           set +e
-          check_args=(--checks ../standards-tooling/.github/repo-standards/checks)
+          check_args=(--checks .github/repo-standards/checks)
           if [[ -n "${{ inputs['check-directory'] }}" ]]; then
             check_args+=(--checks "${{ inputs['check-directory'] }}")
           fi
 
-          ../standards-tooling/scripts/validate-repo-standards.sh \
+          ./scripts/validate-repo-standards.sh \
             --config "${{ inputs['config-path'] || '.github/repo-standards/config.env' }}" \
             "${check_args[@]}" \
             --summary-file "$RUNNER_TEMP/repo-standards-summary.md"

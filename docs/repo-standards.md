@@ -43,7 +43,7 @@ jobs:
     uses: OWNER/github-repo-standards/.github/workflows/repo-standards.yml@main
 ```
 
-The called workflow checks out the consuming repository into `repository` and this standards repository into `standards-tooling`. The validation script comes from `standards-tooling`; the files being validated come from `repository`. It uses GitHub's `job.workflow_repository` and `job.workflow_sha` contexts so the tooling comes from the same revision as the reusable workflow definition.
+The workflow keeps the execution path direct: check out the repository, then run `./scripts/validate-repo-standards.sh`. Repositories that call this workflow through `workflow_call` should include the standards script and check directory paths referenced by the workflow inputs.
 
 ## Pull Request Comment Behavior
 
