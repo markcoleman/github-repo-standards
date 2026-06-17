@@ -1,0 +1,130 @@
+name: Repo Standards
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_call:
+    inputs:
+      config-path:
+        description: Path to the caller repository standards config file.
+        required: false
+        type: string
+        default: .github/repo-standards/config.env
+      check-directory:
+        description: Optional path to caller repository standards check scripts.
+        required: false
+        type: string
+        default: ''
+      post-pr-comment:
+        description: Whether to create or update a pull request status comment.
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: repo-standards-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repo-standards:
+    name: Validate repository standards
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run standards checks
+        id: standards
+        shell: bash
+        run: |
+          set +e
+          check_args=(--checks .github/repo-standards/checks)
+          if [[ -n "${{ inputs['check-directory'] }}" ]]; then
+            check_args+=(--checks "${{ inputs['check-directory'] }}")
+          fi
+
+          ./scripts/validate-repo-standards.sh \
+            --config "${{ inputs['config-path'] || '.github/repo-standards/config.env' }}" \
+            "${check_args[@]}" \
+            --summary-file "$RUNNER_TEMP/repo-standards-summary.md"
+          status=$?
+
+          {
+            echo "exit_code=$status"
+            echo "summary_file=$RUNNER_TEMP/repo-standards-summary.md"
+          } >> "$GITHUB_OUTPUT"
+
+          cat "$RUNNER_TEMP/repo-standards-summary.md" >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
+
+      - name: Update pull request status comment
+        if: ${{ always() && github.event_name == 'pull_request' && (inputs['post-pr-comment'] || inputs['post-pr-comment'] == null) }}
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- repo-standards-status -->';
+            const summaryPath = '${{ steps.standards.outputs.summary_file }}';
+            const summary = fs.existsSync(summaryPath)
+              ? fs.readFileSync(summaryPath, 'utf8')
+              : 'Repository standards did not produce a summary.';
+            const passed = Number('${{ steps.standards.outputs.exit_code }}') === 0;
+            const statusIcon = passed ? '✅' : '❌';
+            const statusText = passed ? 'passed' : 'needs attention';
+            const statusMessage = passed
+              ? 'All configured repository standards are passing.'
+              : 'One or more repository standards need attention before this pull request is ready.';
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const visualSummary = summary
+              .replace(/^## Repository Standards\s*/m, '')
+              .replaceAll('| PASS |', '| ✅ Pass |')
+              .replaceAll('| FAIL |', '| ❌ Fail |')
+              .trim();
+            const body = [
+              marker,
+              `## ${statusIcon} Repository standards ${statusText}`,
+              '',
+              statusMessage,
+              '',
+              visualSummary,
+              '',
+              '---',
+              '',
+              `_Last updated by **${context.workflow}** on ${new Date().toISOString()} · [View workflow run](${runUrl})_`
+            ].join('\n');
+
+            const {owner, repo} = context.repo;
+            const issue_number = context.issue.number;
+            const {data: comments} = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number,
+              per_page: 100
+            });
+            const existing = comments.find((comment) => comment.body?.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body
+              });
+            }
