@@ -19,7 +19,7 @@ The standards check requires:
 - located at the repository root,
 - with at least one byte of content by default.
 
-The path and minimum byte count are configurable in `.github/repo-standards/config.env`. The config file supports simple `KEY=value` lines and comments; it is parsed as data instead of evaluated as shell.
+The path and minimum byte count are configurable in the bundled action config at `.github/actions/repo-standards/config.env`, or by passing a repository-specific config file through the reusable workflow. The config file supports simple `KEY=value` lines and comments; it is parsed as data instead of evaluated as shell.
 
 ## Rule: CODEOWNERS Required
 
@@ -36,10 +36,25 @@ Ownership metadata helps reviewers, maintainers, and automation understand who i
 The workflow is designed to be quick and predictable:
 
 - no dependency installation,
-- no network calls beyond the GitHub API call used for pull request comments,
-- one shell runner,
+- no package registry calls,
+- one shell runner for standards checks,
 - short timeout,
 - clear Markdown output locally and in GitHub Actions.
+
+## Developer Portal Publishing
+
+This repository includes a static developer portal at `docs/portal`. The portal is designed as the first stop for engineers adopting the standards workflow: it explains the default checks, shows reusable workflow snippets, maps the automation flow, and links back to the Markdown reference docs.
+
+The `Standards Developer Portal` workflow at `.github/workflows/standards-pages.yml` publishes the portal to GitHub Pages. It:
+
+- checks out the repository,
+- configures GitHub Pages,
+- copies `docs/portal` into a `_site` artifact,
+- copies `README.md` and this file into `_site/reference`,
+- uploads the Pages artifact,
+- deploys the static site through `actions/deploy-pages`.
+
+Enable GitHub Pages with GitHub Actions as the source before relying on automatic publication.
 
 ## Required Workflow Adoption
 
@@ -53,15 +68,15 @@ jobs:
     uses: OWNER/github-repo-standards/.github/workflows/repo-standards.yml@main
 ```
 
-The workflow keeps the execution path direct: check out the repository, then run `./scripts/validate-repo-standards.sh`. Repositories that call this workflow through `workflow_call` should include the standards script and check directory paths referenced by the workflow inputs.
+The workflow checks out the target repository, checks out this repository's standards actions from the same ref as the reusable workflow, then runs the shared check action at `.github/actions/repo-standards`. Repositories that call this workflow through `workflow_call` only need to provide repository-specific check directories or config overrides when they want to extend the bundled defaults.
 
 ## Pull Request Comment Behavior
 
-The workflow posts a single pull request comment with a clear pass/fail heading, emoji status indicators, the standards result table, and a link back to the workflow run. A hidden marker lets later runs find and update the same comment. This keeps reviewer visibility high while avoiding repeated comment spam.
+The workflow uses the shared comment action at `.github/actions/repo-standards-comment` to post a single pull request comment with a clear pass/fail heading, emoji status indicators, the standards result table, and a link back to the workflow run. A hidden marker lets later runs find and update the same comment. This keeps reviewer visibility high while avoiding repeated comment spam.
 
 ## Adding More Rules
 
-Create another sorted shell script in `.github/repo-standards/checks`.
+Create another sorted shell script in `.github/actions/repo-standards/checks`.
 
 Example:
 
@@ -78,4 +93,4 @@ fi
 
 Use small focused checks so failures are easy to understand and safe to require across many repositories.
 
-Consuming repositories can add repository-specific checks by passing `check-directory` to the reusable workflow. The bundled checks still run first.
+Consuming repositories can add repository-specific checks by passing `check-directory` to the reusable workflow. For compatibility with the previous workflow default, `.github/repo-standards/checks` is also included automatically when it exists in the caller repository. The bundled checks still run first.

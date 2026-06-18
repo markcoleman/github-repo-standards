@@ -1,32 +1,25 @@
 # GitHub Repository Standards
 
-This repository provides a small, reusable GitHub Actions workflow for repository standards. The initial standards require a non-empty `README.md` and a populated `CODEOWNERS` file, because repositories need both clear documentation and clear ownership.
+Reusable GitHub Actions automation for lightweight repository standards. This repository provides a required-workflow entry point plus two local composite actions:
 
-The workflow is intentionally lightweight:
+- `.github/actions/repo-standards` runs the configured standards checks and writes a Markdown summary.
+- `.github/actions/repo-standards-comment` creates or updates one pull request status comment from that summary.
+- `.github/workflows/standards-pages.yml` publishes the standards developer portal to GitHub Pages as static HTML.
 
-- It runs in Bash with no package installation.
-- It can run on pull requests, pushes to `main`, or as a reusable workflow through `workflow_call`.
-- It writes a GitHub Step Summary for every run.
-- It creates or updates one readable pull request comment with the current standards status.
-- It is extended by adding small check scripts under `.github/repo-standards/checks`.
+The bundled standards are intentionally small and broadly useful: every repository should have a non-empty root `README.md` and a populated `CODEOWNERS` file.
 
-## Local Validation
+## What It Checks
 
-Run the same checks locally before opening a pull request:
+The default check action validates:
 
-```bash
-./scripts/validate-repo-standards.sh
-```
+- `README.md` exists at the repository root and contains content.
+- `CODEOWNERS` or `.github/CODEOWNERS` exists and contains at least one owner entry.
 
-To write the same Markdown summary used by the workflow:
-
-```bash
-./scripts/validate-repo-standards.sh --summary-file /tmp/repo-standards-summary.md
-```
+The README path and minimum byte count are configurable through a simple data-only config file. The bundled defaults live in `.github/actions/repo-standards/config.env`.
 
 ## Reuse From Another Repository
 
-Add this workflow as a required reusable workflow from another repository:
+Call the reusable workflow from a repository that should be validated:
 
 ```yaml
 name: Required Repository Standards
@@ -47,22 +40,25 @@ jobs:
     uses: OWNER/github-repo-standards/.github/workflows/repo-standards.yml@main
 ```
 
-Replace `OWNER` with the organization or account that owns this repository.
+Replace `OWNER` with the account or organization that owns this repository.
 
-The workflow intentionally keeps the execution path direct: it checks out the repository and runs `./scripts/validate-repo-standards.sh`.
+The workflow checks out the target repository, checks out this standards repository from the same workflow ref, runs the bundled standards action, and optionally publishes a pull request comment.
 
-## Extending Standards
+## Workflow Inputs
 
-For this repository, add a new `*.sh` file in `.github/repo-standards/checks`. Checks are sourced in sorted order and can call:
+The reusable workflow supports:
 
-- `pass "Check name" "Details"`
-- `fail "Check name" "Details"`
+| Input | Default | Description |
+| --- | --- | --- |
+| `config-path` | `.github/repo-standards/config.env` | Optional caller repository config file. If the file is absent, bundled defaults are used. |
+| `check-directory` | `''` | Optional caller repository directory containing additional `*.sh` checks. |
+| `post-pr-comment` | `true` | Whether pull request runs should create or update the standards status comment. |
 
-Keep checks deterministic and dependency-free unless a standard truly requires extra tooling.
+For compatibility with the previous workflow layout, `.github/repo-standards/checks` is automatically included when it exists in the caller repository, even when `check-directory` is not set.
 
-Configuration lives in `.github/repo-standards/config.env`. It supports simple `KEY=value` lines and comments. It does not evaluate shell commands.
+## Add Repository-Specific Checks
 
-Consuming repositories can add their own checks by passing `check-directory`:
+Add executable shell scripts to the caller repository and pass their directory with `check-directory`:
 
 ```yaml
 jobs:
@@ -72,8 +68,50 @@ jobs:
       check-directory: .github/repo-standards/checks
 ```
 
-When another repository calls this workflow, that repository must include the standards script and check directory paths referenced by the workflow inputs.
+Checks are sourced in sorted order after the bundled checks. Each check can call:
 
-## Pull Request Visibility
+```bash
+pass "Check name" "Details"
+fail "Check name" "Details"
+```
 
-On pull requests, the workflow posts a visual status comment marked with an internal `repo-standards-status` marker. Later runs update that same comment instead of creating duplicates, so reviewers see the latest status without noise.
+Example:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -f "LICENSE" ]]; then
+  pass "License is present" "LICENSE exists at the repository root."
+else
+  fail "License is present" "Add a root-level LICENSE file."
+fi
+```
+
+Keep checks deterministic and dependency-free unless a standard truly needs extra tooling.
+
+## Pull Request Comment
+
+On pull requests, the workflow posts a single status comment marked with `<!-- repo-standards-status -->`. Later runs update that comment instead of creating duplicates. Set `post-pr-comment: false` to disable comment publishing while still running the checks and writing the GitHub Step Summary.
+
+## Local Validation
+
+Run the bundled checks locally from this repository:
+
+```bash
+.github/actions/repo-standards/validate-repo-standards.sh
+```
+
+Write the same Markdown summary used by GitHub Actions:
+
+```bash
+.github/actions/repo-standards/validate-repo-standards.sh --summary-file /tmp/repo-standards-summary.md
+```
+
+More detailed implementation notes live in `docs/repo-standards.md`.
+
+## Developer Portal
+
+The static developer portal lives in `docs/portal` and is published by the `Standards Developer Portal` workflow. The workflow builds a Pages artifact from the portal source, copies `README.md` and `docs/repo-standards.md` into `reference/`, and deploys the result with GitHub Pages.
+
+Enable GitHub Pages for this repository with GitHub Actions as the source, then run the workflow from `main` or let it publish on the next matching push.

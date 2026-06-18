@@ -6,7 +6,7 @@ This repository owns a reusable GitHub Actions workflow for repository standards
 
 - Keep the standards runner dependency-free and fast.
 - Keep checks small, deterministic, and easy to explain.
-- Prefer adding new standards as separate files in `.github/repo-standards/checks`.
+- Prefer adding new bundled standards as separate files in `.github/actions/repo-standards/checks`.
 - Keep pull request output readable for reviewers.
 
 ## Validation
@@ -14,7 +14,7 @@ This repository owns a reusable GitHub Actions workflow for repository standards
 Run this before finishing changes:
 
 ```bash
-./scripts/validate-repo-standards.sh
+.github/actions/repo-standards/validate-repo-standards.sh
 ```
 
 When changing workflow behavior, review `.github/workflows/repo-standards.yml` and update `docs/repo-standards.md` if adoption guidance changes.

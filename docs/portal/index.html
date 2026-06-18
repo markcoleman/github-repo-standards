@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Repository Standards Developer Portal</title>
+    <meta
+      name="description"
+      content="Developer portal for adopting, extending, and operating the GitHub Repository Standards workflow."
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <nav class="nav-shell" aria-label="Primary">
+        <a class="brand" href="#top" aria-label="Repository Standards home">
+          <span class="brand-mark" aria-hidden="true">RS</span>
+          <span>
+            <strong>Repo Standards</strong>
+            <small>Developer portal</small>
+          </span>
+        </a>
+        <div class="nav-links">
+          <a href="#quickstart">Quickstart</a>
+          <a href="#standards">Standards</a>
+          <a href="#extend">Extend</a>
+          <a href="#operate">Operate</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero section-band" id="top">
+        <div class="hero-copy">
+          <p class="eyebrow">Required workflow starter kit</p>
+          <h1>Repository Standards Developer Portal</h1>
+          <p class="hero-lede">
+            A practical home for adopting lightweight repository standards,
+            understanding the automation, and helping every team ship with a
+            clear README and accountable ownership.
+          </p>
+          <div class="hero-actions" aria-label="Primary actions">
+            <a class="button primary" href="#quickstart">Start adoption</a>
+            <a class="button secondary" href="#architecture">View workflow</a>
+          </div>
+        </div>
+
+        <aside class="run-panel" aria-label="Standards run preview">
+          <div class="panel-topline">
+            <span class="status-dot pass" aria-hidden="true"></span>
+            <span>repo-standards.yml</span>
+            <span class="panel-meta">5 min timeout</span>
+          </div>
+          <div class="metric-grid" aria-label="Default standards">
+            <div>
+              <span class="metric-value">2</span>
+              <span class="metric-label">Bundled checks</span>
+            </div>
+            <div>
+              <span class="metric-value">0</span>
+              <span class="metric-label">Dependencies</span>
+            </div>
+            <div>
+              <span class="metric-value">1</span>
+              <span class="metric-label">PR comment</span>
+            </div>
+          </div>
+          <div class="terminal-card" aria-label="Example standards summary">
+            <div class="terminal-bar">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <pre><code>Repository Standards
+
+PASS  Root README is present
+PASS  CODEOWNERS is present
+
+All repository standards checks passed.</code></pre>
+          </div>
+        </aside>
+      </section>
+
+      <section class="section-band compact" aria-labelledby="value-title">
+        <div class="section-heading">
+          <p class="eyebrow">Why it exists</p>
+          <h2 id="value-title">Make the basics visible, automated, and easy to trust.</h2>
+        </div>
+        <div class="value-grid">
+          <article class="feature-card">
+            <span class="feature-index">01</span>
+            <h3>Contributor clarity</h3>
+            <p>Every repository gets a real entry point with a root README that tells people what they are looking at.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-index">02</span>
+            <h3>Ownership signal</h3>
+            <p>CODEOWNERS gives reviewers, maintainers, and automation a dependable map for responsibility.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-index">03</span>
+            <h3>Reusable enforcement</h3>
+            <p>One workflow can be called by many repositories while still supporting caller-specific checks and config.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-band split" id="quickstart" aria-labelledby="quickstart-title">
+        <div class="section-heading sticky-heading">
+          <p class="eyebrow">Quickstart</p>
+          <h2 id="quickstart-title">Adopt the required workflow.</h2>
+          <p>
+            Add this workflow to a repository that should be validated. Replace
+            <code>OWNER</code> with the account or organization that owns this
+            standards repository.
+          </p>
+        </div>
+        <div class="code-copy">
+          <div class="code-header">
+            <span>.github/workflows/required-repo-standards.yml</span>
+            <button class="copy-button" type="button" data-copy="adoption-yaml">Copy</button>
+          </div>
+          <pre><code id="adoption-yaml">name: Required Repository Standards
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  repo-standards:
+    uses: OWNER/github-repo-standards/.github/workflows/repo-standards.yml@main</code></pre>
+        </div>
+      </section>
+
+      <section class="section-band" id="standards" aria-labelledby="standards-title">
+        <div class="section-heading">
+          <p class="eyebrow">Default standards</p>
+          <h2 id="standards-title">Small rules, high leverage.</h2>
+        </div>
+        <div class="standards-grid">
+          <article class="standard-card">
+            <div>
+              <p class="standard-kicker">Check 010</p>
+              <h3>Root README required</h3>
+            </div>
+            <p>
+              Validates a root-level README file and enforces configurable
+              minimum content through <code>REQUIRED_README_PATH</code> and
+              <code>MIN_README_BYTES</code>.
+            </p>
+            <a href="reference/repo-standards.md">Read implementation notes</a>
+          </article>
+          <article class="standard-card">
+            <div>
+              <p class="standard-kicker">Check 020</p>
+              <h3>CODEOWNERS required</h3>
+            </div>
+            <p>
+              Accepts <code>CODEOWNERS</code> or <code>.github/CODEOWNERS</code>
+              when at least one non-comment entry includes an owner.
+            </p>
+            <a href="reference/repo-standards.md">Understand the rule</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-band split" id="architecture" aria-labelledby="architecture-title">
+        <div class="section-heading sticky-heading">
+          <p class="eyebrow">Architecture</p>
+          <h2 id="architecture-title">How a standards run moves through the system.</h2>
+          <p>
+            The reusable workflow checks out the caller repository, checks out
+            this standards repository at the workflow ref, runs the composite
+            action, and optionally updates a single PR comment.
+          </p>
+        </div>
+        <figure class="workflow-figure">
+          <img src="assets/workflow-map.svg" alt="Workflow map showing caller repository, reusable workflow, standards action, checks, summary, and pull request comment.">
+          <figcaption>Static artifact map generated from the workflow and composite action structure in this repository.</figcaption>
+        </figure>
+      </section>
+
+      <section class="section-band split" id="extend" aria-labelledby="extend-title">
+        <div class="section-heading sticky-heading">
+          <p class="eyebrow">Extend</p>
+          <h2 id="extend-title">Add repository-specific checks without forking the core.</h2>
+          <p>
+            Place focused shell checks in the caller repository and pass their
+            directory to the reusable workflow. Bundled checks run first.
+          </p>
+        </div>
+        <div class="stack">
+          <div class="code-copy">
+            <div class="code-header">
+              <span>Workflow input</span>
+              <button class="copy-button" type="button" data-copy="extend-yaml">Copy</button>
+            </div>
+            <pre><code id="extend-yaml">jobs:
+  repo-standards:
+    uses: OWNER/github-repo-standards/.github/workflows/repo-standards.yml@main
+    with:
+      check-directory: .github/repo-standards/checks</code></pre>
+          </div>
+          <div class="code-copy">
+            <div class="code-header">
+              <span>Check helper contract</span>
+              <button class="copy-button" type="button" data-copy="check-shell">Copy</button>
+            </div>
+            <pre><code id="check-shell">#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -f "LICENSE" ]]; then
+  pass "License is present" "LICENSE exists at the repository root."
+else
+  fail "License is present" "Add a root-level LICENSE file."
+fi</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-band compact" id="operate" aria-labelledby="operate-title">
+        <div class="section-heading">
+          <p class="eyebrow">Operate</p>
+          <h2 id="operate-title">Designed for required checks and review flow.</h2>
+        </div>
+        <div class="ops-grid">
+          <article class="ops-item">
+            <h3>Fast by default</h3>
+            <p>No package registry calls, no dependency installation, and a short timeout keep required checks predictable.</p>
+          </article>
+          <article class="ops-item">
+            <h3>Clean PR signal</h3>
+            <p>A hidden marker lets later runs update the same standards comment instead of creating repeated noise.</p>
+          </article>
+          <article class="ops-item">
+            <h3>Local parity</h3>
+            <p>Run <code>.github/actions/repo-standards/validate-repo-standards.sh</code> to reproduce the same summary locally.</p>
+          </article>
+          <article class="ops-item">
+            <h3>Pages publishing</h3>
+            <p>This portal is published from <code>docs/portal</code> through the Pages workflow as a static HTML artifact.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-band docs-band" aria-labelledby="docs-title">
+        <div>
+          <p class="eyebrow">Reference</p>
+          <h2 id="docs-title">Keep reading.</h2>
+          <p>Use the source docs when you need the underlying implementation details or want to tune the workflow inputs.</p>
+        </div>
+        <div class="reference-links">
+          <a href="reference/README.md">README reference</a>
+          <a href="reference/repo-standards.md">Workflow details</a>
+          <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages">GitHub Pages custom workflows</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>GitHub Repository Standards</span>
+      <span>Static developer portal for teams that like boring automation and polished docs.</span>
+    </footer>
+
+    <script src="site.js" defer></script>
+  </body>
+</html>
