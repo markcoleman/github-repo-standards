@@ -39,32 +39,22 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Checkout
+      - name: Checkout target repository
         uses: actions/checkout@v4
+
+      - name: Checkout standards action
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: .repo-standards-action
 
       - name: Run standards checks
         id: standards
-        shell: bash
-        run: |
-          set +e
-          check_args=(--checks .github/repo-standards/checks)
-          if [[ -n "${{ inputs['check-directory'] }}" ]]; then
-            check_args+=(--checks "${{ inputs['check-directory'] }}")
-          fi
-
-          ./scripts/validate-repo-standards.sh \
-            --config "${{ inputs['config-path'] || '.github/repo-standards/config.env' }}" \
-            "${check_args[@]}" \
-            --summary-file "$RUNNER_TEMP/repo-standards-summary.md"
-          status=$?
-
-          {
-            echo "exit_code=$status"
-            echo "summary_file=$RUNNER_TEMP/repo-standards-summary.md"
-          } >> "$GITHUB_OUTPUT"
-
-          cat "$RUNNER_TEMP/repo-standards-summary.md" >> "$GITHUB_STEP_SUMMARY"
-          exit "$status"
+        uses: ./.repo-standards-action/.github/actions/repo-standards
+        with:
+          config-path: ${{ inputs['config-path'] || '' }}
+          check-directory: ${{ inputs['check-directory'] || '' }}
 
       - name: Update pull request status comment
         if: ${{ always() && github.event_name == 'pull_request' && (inputs['post-pr-comment'] || inputs['post-pr-comment'] == null) }}

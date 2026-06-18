@@ -1,0 +1,71 @@
+name: Repository Standards
+description: Run repository standards checks and write a Markdown summary.
+
+inputs:
+  config-path:
+    description: Optional path to a repository standards config file.
+    required: false
+    default: ''
+  check-directory:
+    description: Optional path to additional repository standards check scripts.
+    required: false
+    default: ''
+  summary-file:
+    description: Optional Markdown summary output path.
+    required: false
+    default: ''
+
+outputs:
+  exit_code:
+    description: Exit code from the standards runner.
+    value: ${{ steps.standards.outputs.exit_code }}
+  summary_file:
+    description: Markdown summary file path.
+    value: ${{ steps.standards.outputs.summary_file }}
+
+runs:
+  using: composite
+  steps:
+    - name: Run standards checks
+      id: standards
+      shell: bash
+      env:
+        INPUT_CHECK_DIRECTORY: ${{ inputs.check-directory }}
+        INPUT_CONFIG_PATH: ${{ inputs.config-path }}
+        INPUT_SUMMARY_FILE: ${{ inputs.summary-file }}
+      run: |
+        set +e
+
+        summary_file="$INPUT_SUMMARY_FILE"
+        if [[ -z "$summary_file" ]]; then
+          summary_file="$RUNNER_TEMP/repo-standards-summary.md"
+        fi
+
+        check_args=(--checks "$GITHUB_ACTION_PATH/checks")
+        if [[ -n "$INPUT_CHECK_DIRECTORY" ]]; then
+          check_args+=(--checks "$INPUT_CHECK_DIRECTORY")
+        fi
+
+        config_args=()
+        if [[ -n "$INPUT_CONFIG_PATH" && -f "$INPUT_CONFIG_PATH" ]]; then
+          config_args=(--config "$INPUT_CONFIG_PATH")
+        else
+          config_args=(--config "$GITHUB_ACTION_PATH/config.env")
+        fi
+
+        "$GITHUB_ACTION_PATH/validate-repo-standards.sh" \
+          "${config_args[@]}" \
+          "${check_args[@]}" \
+          --summary-file "$summary_file"
+        status=$?
+
+        {
+          echo "exit_code=$status"
+          echo "summary_file=$summary_file"
+        } >> "$GITHUB_OUTPUT"
+
+        if [[ -f "$summary_file" ]]; then
+          cat "$summary_file" >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+        exit "$status"

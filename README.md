@@ -8,20 +8,20 @@ The workflow is intentionally lightweight:
 - It can run on pull requests, pushes to `main`, or as a reusable workflow through `workflow_call`.
 - It writes a GitHub Step Summary for every run.
 - It creates or updates one readable pull request comment with the current standards status.
-- It is extended by adding small check scripts under `.github/repo-standards/checks`.
+- Its bundled checks live in a self-contained composite action under `.github/actions/repo-standards`.
 
 ## Local Validation
 
 Run the same checks locally before opening a pull request:
 
 ```bash
-./scripts/validate-repo-standards.sh
+.github/actions/repo-standards/validate-repo-standards.sh
 ```
 
 To write the same Markdown summary used by the workflow:
 
 ```bash
-./scripts/validate-repo-standards.sh --summary-file /tmp/repo-standards-summary.md
+.github/actions/repo-standards/validate-repo-standards.sh --summary-file /tmp/repo-standards-summary.md
 ```
 
 ## Reuse From Another Repository
@@ -49,18 +49,18 @@ jobs:
 
 Replace `OWNER` with the organization or account that owns this repository.
 
-The workflow intentionally keeps the execution path direct: it checks out the repository and runs `./scripts/validate-repo-standards.sh`.
+The workflow checks out the target repository, checks out the standards action from the same ref as the reusable workflow, and then runs the shared composite action.
 
 ## Extending Standards
 
-For this repository, add a new `*.sh` file in `.github/repo-standards/checks`. Checks are sourced in sorted order and can call:
+For this repository, add a new bundled `*.sh` file in `.github/actions/repo-standards/checks`. Checks are sourced in sorted order and can call:
 
 - `pass "Check name" "Details"`
 - `fail "Check name" "Details"`
 
 Keep checks deterministic and dependency-free unless a standard truly requires extra tooling.
 
-Configuration lives in `.github/repo-standards/config.env`. It supports simple `KEY=value` lines and comments. It does not evaluate shell commands.
+Bundled default configuration lives in `.github/actions/repo-standards/config.env`. It supports simple `KEY=value` lines and comments. It does not evaluate shell commands.
 
 Consuming repositories can add their own checks by passing `check-directory`:
 
@@ -72,7 +72,7 @@ jobs:
       check-directory: .github/repo-standards/checks
 ```
 
-When another repository calls this workflow, that repository must include the standards script and check directory paths referenced by the workflow inputs.
+The bundled action, default config, and default checks come from this repository; callers only need to provide repository-specific check directories or config overrides when they want to extend the defaults.
 
 ## Pull Request Visibility
 

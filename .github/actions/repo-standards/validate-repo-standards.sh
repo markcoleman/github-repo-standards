@@ -3,18 +3,19 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-Usage: scripts/validate-repo-standards.sh [options]
+Usage: .github/actions/repo-standards/validate-repo-standards.sh [options]
 
 Options:
-  --config PATH        Standards config file. Default: .github/repo-standards/config.env
+  --config PATH        Standards config file. Default: action-local config.env
   --checks PATH        Directory containing executable *.sh standards checks. May be
-                       passed more than once. Default: .github/repo-standards/checks
+                       passed more than once. Default: action-local checks
   --summary-file PATH  Markdown summary output path. Default: stdout only
   -h, --help           Show this help message.
 USAGE
 }
 
-config_path=".github/repo-standards/config.env"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+config_path="$script_dir/config.env"
 declare -a checks_dirs=()
 summary_file=""
 
@@ -74,7 +75,7 @@ if [[ -n "$config_path" && -f "$config_path" ]]; then
 fi
 
 if [[ ${#checks_dirs[@]} -eq 0 ]]; then
-  checks_dirs=(".github/repo-standards/checks")
+  checks_dirs=("$script_dir/checks")
 fi
 
 declare -a results=()

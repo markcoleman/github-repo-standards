@@ -19,7 +19,7 @@ The standards check requires:
 - located at the repository root,
 - with at least one byte of content by default.
 
-The path and minimum byte count are configurable in `.github/repo-standards/config.env`. The config file supports simple `KEY=value` lines and comments; it is parsed as data instead of evaluated as shell.
+The path and minimum byte count are configurable in the bundled action config at `.github/actions/repo-standards/config.env`, or by passing a repository-specific config file through the reusable workflow. The config file supports simple `KEY=value` lines and comments; it is parsed as data instead of evaluated as shell.
 
 ## Rule: CODEOWNERS Required
 
@@ -36,7 +36,7 @@ Ownership metadata helps reviewers, maintainers, and automation understand who i
 The workflow is designed to be quick and predictable:
 
 - no dependency installation,
-- no network calls beyond the GitHub API call used for pull request comments,
+- no dependency installation or package registry calls,
 - one shell runner,
 - short timeout,
 - clear Markdown output locally and in GitHub Actions.
@@ -53,7 +53,7 @@ jobs:
     uses: OWNER/github-repo-standards/.github/workflows/repo-standards.yml@main
 ```
 
-The workflow keeps the execution path direct: check out the repository, then run `./scripts/validate-repo-standards.sh`. Repositories that call this workflow through `workflow_call` should include the standards script and check directory paths referenced by the workflow inputs.
+The workflow checks out the target repository, checks out this repository's standards action from the same ref as the reusable workflow, then runs the shared composite action. Repositories that call this workflow through `workflow_call` only need to provide repository-specific check directories or config overrides when they want to extend the bundled defaults.
 
 ## Pull Request Comment Behavior
 
@@ -61,7 +61,7 @@ The workflow posts a single pull request comment with a clear pass/fail heading,
 
 ## Adding More Rules
 
-Create another sorted shell script in `.github/repo-standards/checks`.
+Create another sorted shell script in `.github/actions/repo-standards/checks`.
 
 Example:
 
