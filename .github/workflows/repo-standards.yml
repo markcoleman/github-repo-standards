@@ -57,7 +57,7 @@ jobs:
           check-directory: ${{ inputs['check-directory'] || '' }}
 
       - name: Update pull request status comment
-        if: ${{ always() && github.event_name == 'pull_request' && (inputs['post-pr-comment'] || inputs['post-pr-comment'] == null) }}
+        if: ${{ always() && github.event_name == 'pull_request' && toJSON(inputs['post-pr-comment']) != 'false' }}
         continue-on-error: true
         uses: ./.repo-standards-action/.github/actions/repo-standards-comment
         with:
