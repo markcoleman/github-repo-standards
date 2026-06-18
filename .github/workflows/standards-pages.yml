@@ -1,0 +1,71 @@
+name: Standards Developer Portal
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - README.md
+      - docs/**
+      - .github/actions/repo-standards/**
+      - .github/actions/repo-standards-comment/**
+      - .github/workflows/repo-standards.yml
+      - .github/workflows/standards-pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: standards-developer-portal
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build static portal
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build portal artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          rm -rf _site
+          mkdir -p _site/reference
+          cp -R docs/portal/. _site/
+          cp README.md _site/reference/README.md
+          cp docs/repo-standards.md _site/reference/repo-standards.md
+
+          {
+            echo "Repository Standards Developer Portal"
+            echo "Built from ${GITHUB_REPOSITORY}@${GITHUB_SHA}"
+          } > _site/reference/build.txt
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 5
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy static portal
+        id: deployment
+        uses: actions/deploy-pages@v4

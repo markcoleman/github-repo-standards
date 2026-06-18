@@ -41,6 +41,21 @@ The workflow is designed to be quick and predictable:
 - short timeout,
 - clear Markdown output locally and in GitHub Actions.
 
+## Developer Portal Publishing
+
+This repository includes a static developer portal at `docs/portal`. The portal is designed as the first stop for engineers adopting the standards workflow: it explains the default checks, shows reusable workflow snippets, maps the automation flow, and links back to the Markdown reference docs.
+
+The `Standards Developer Portal` workflow at `.github/workflows/standards-pages.yml` publishes the portal to GitHub Pages. It:
+
+- checks out the repository,
+- configures GitHub Pages,
+- copies `docs/portal` into a `_site` artifact,
+- copies `README.md` and this file into `_site/reference`,
+- uploads the Pages artifact,
+- deploys the static site through `actions/deploy-pages`.
+
+Enable GitHub Pages with GitHub Actions as the source before relying on automatic publication.
+
 ## Required Workflow Adoption
 
 Repository administrators can add this workflow as a required workflow in GitHub branch protection or rulesets after referencing it from each repository. The workflow supports `workflow_call`, which makes the standards implementation reusable while still allowing each consuming repository to decide when it runs.

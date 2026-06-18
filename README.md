@@ -4,6 +4,7 @@ Reusable GitHub Actions automation for lightweight repository standards. This re
 
 - `.github/actions/repo-standards` runs the configured standards checks and writes a Markdown summary.
 - `.github/actions/repo-standards-comment` creates or updates one pull request status comment from that summary.
+- `.github/workflows/standards-pages.yml` publishes the standards developer portal to GitHub Pages as static HTML.
 
 The bundled standards are intentionally small and broadly useful: every repository should have a non-empty root `README.md` and a populated `CODEOWNERS` file.
 
@@ -108,3 +109,9 @@ Write the same Markdown summary used by GitHub Actions:
 ```
 
 More detailed implementation notes live in `docs/repo-standards.md`.
+
+## Developer Portal
+
+The static developer portal lives in `docs/portal` and is published by the `Standards Developer Portal` workflow. The workflow builds a Pages artifact from the portal source, copies `README.md` and `docs/repo-standards.md` into `reference/`, and deploys the result with GitHub Pages.
+
+Enable GitHub Pages for this repository with GitHub Actions as the source, then run the workflow from `main` or let it publish on the next matching push.

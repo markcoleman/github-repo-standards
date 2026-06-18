@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="680" viewBox="0 0 1120 680" role="img" aria-labelledby="title desc">
+  <title id="title">Repository standards workflow map</title>
+  <desc id="desc">A visual map of the caller repository, reusable workflow, standards action, checks, summary, and pull request comment.</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#fffaf0" offset="0"/>
+      <stop stop-color="#f0f6f2" offset="1"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="0" x2="1" y1="0" y2="0">
+      <stop stop-color="#15191e" offset="0"/>
+      <stop stop-color="#126b55" offset="1"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#211d14" flood-opacity=".14"/>
+    </filter>
+  </defs>
+  <rect width="1120" height="680" rx="8" fill="url(#paper)"/>
+  <path d="M76 100H1044" stroke="#d9d2c5" stroke-width="1"/>
+  <path d="M76 580H1044" stroke="#d9d2c5" stroke-width="1"/>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">
+    <text x="76" y="63" fill="#15191e" font-size="32" font-weight="800">Required Repository Standards</text>
+    <text x="76" y="86" fill="#5e6672" font-size="16">Reusable workflow and static developer portal publishing model</text>
+
+    <g filter="url(#shadow)">
+      <rect x="76" y="136" width="260" height="126" rx="8" fill="#ffffff" stroke="#d9d2c5"/>
+      <text x="104" y="178" fill="#126b55" font-size="13" font-weight="800">CALLER REPOSITORY</text>
+      <text x="104" y="211" fill="#15191e" font-size="24" font-weight="800">pull_request / push</text>
+      <text x="104" y="238" fill="#5e6672" font-size="15">Provides README, CODEOWNERS, config, and optional checks.</text>
+    </g>
+
+    <g filter="url(#shadow)">
+      <rect x="430" y="136" width="260" height="126" rx="8" fill="#ffffff" stroke="#d9d2c5"/>
+      <text x="458" y="178" fill="#126b55" font-size="13" font-weight="800">REUSABLE WORKFLOW</text>
+      <text x="458" y="211" fill="#15191e" font-size="24" font-weight="800">repo-standards.yml</text>
+      <text x="458" y="238" fill="#5e6672" font-size="15">Checks out the target repo and this standards repo ref.</text>
+    </g>
+
+    <g filter="url(#shadow)">
+      <rect x="784" y="136" width="260" height="126" rx="8" fill="#ffffff" stroke="#d9d2c5"/>
+      <text x="812" y="178" fill="#126b55" font-size="13" font-weight="800">COMPOSITE ACTION</text>
+      <text x="812" y="211" fill="#15191e" font-size="24" font-weight="800">repo-standards</text>
+      <text x="812" y="238" fill="#5e6672" font-size="15">Runs the shell validator and writes a Markdown summary.</text>
+    </g>
+
+    <g filter="url(#shadow)">
+      <rect x="188" y="362" width="220" height="120" rx="8" fill="#15191e"/>
+      <text x="216" y="403" fill="#57c5a4" font-size="13" font-weight="800">BUNDLED CHECKS</text>
+      <text x="216" y="435" fill="#f7f1e8" font-size="22" font-weight="800">README</text>
+      <text x="216" y="462" fill="#f7f1e8" font-size="22" font-weight="800">CODEOWNERS</text>
+    </g>
+
+    <g filter="url(#shadow)">
+      <rect x="450" y="362" width="220" height="120" rx="8" fill="#ffffff" stroke="#d9d2c5"/>
+      <text x="478" y="403" fill="#c84f3c" font-size="13" font-weight="800">OUTPUT</text>
+      <text x="478" y="435" fill="#15191e" font-size="22" font-weight="800">Step summary</text>
+      <text x="478" y="462" fill="#5e6672" font-size="15">Human-readable status table.</text>
+    </g>
+
+    <g filter="url(#shadow)">
+      <rect x="712" y="362" width="220" height="120" rx="8" fill="#ffffff" stroke="#d9d2c5"/>
+      <text x="740" y="403" fill="#315f9d" font-size="13" font-weight="800">OPTIONAL COMMENT</text>
+      <text x="740" y="435" fill="#15191e" font-size="22" font-weight="800">One PR update</text>
+      <text x="740" y="462" fill="#5e6672" font-size="15">Marker prevents comment spam.</text>
+    </g>
+
+    <path d="M336 199H430" stroke="url(#ink)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M690 199H784" stroke="url(#ink)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M914 262C914 318 822 305 822 362" stroke="url(#ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path d="M914 262C914 330 560 294 560 362" stroke="url(#ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path d="M914 262C914 329 298 294 298 362" stroke="url(#ink)" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+    <g fill="#126b55">
+      <path d="M424 199l-14-8v16z"/>
+      <path d="M778 199l-14-8v16z"/>
+      <path d="M823 356l-8-14 16 1z"/>
+      <path d="M560 356l-8-14 16 1z"/>
+      <path d="M298 356l-8-14 16 1z"/>
+    </g>
+
+    <text x="76" y="626" fill="#5e6672" font-size="15">Pages workflow publishes docs/portal as static HTML and copies README plus standards docs into reference/.</text>
+  </g>
+</svg>
