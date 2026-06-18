@@ -78,4 +78,4 @@ fi
 
 Use small focused checks so failures are easy to understand and safe to require across many repositories.
 
-Consuming repositories can add repository-specific checks by passing `check-directory` to the reusable workflow. The bundled checks still run first.
+Consuming repositories can add repository-specific checks by passing `check-directory` to the reusable workflow. For compatibility with the previous workflow default, `.github/repo-standards/checks` is also included automatically when it exists in the caller repository. The bundled checks still run first.

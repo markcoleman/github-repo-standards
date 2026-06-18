@@ -33,6 +33,7 @@ runs:
         INPUT_CHECK_DIRECTORY: ${{ inputs.check-directory }}
         INPUT_CONFIG_PATH: ${{ inputs.config-path }}
         INPUT_SUMMARY_FILE: ${{ inputs.summary-file }}
+        LEGACY_CHECK_DIRECTORY: .github/repo-standards/checks
       run: |
         set +e
 
@@ -42,8 +43,13 @@ runs:
         fi
 
         check_args=(--checks "$GITHUB_ACTION_PATH/checks")
+        if [[ -d "$LEGACY_CHECK_DIRECTORY" ]]; then
+          check_args+=(--checks "$LEGACY_CHECK_DIRECTORY")
+        fi
         if [[ -n "$INPUT_CHECK_DIRECTORY" ]]; then
-          check_args+=(--checks "$INPUT_CHECK_DIRECTORY")
+          if [[ "$INPUT_CHECK_DIRECTORY" != "$LEGACY_CHECK_DIRECTORY" ]]; then
+            check_args+=(--checks "$INPUT_CHECK_DIRECTORY")
+          fi
         fi
 
         config_args=()
