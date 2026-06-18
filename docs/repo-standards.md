@@ -36,8 +36,8 @@ Ownership metadata helps reviewers, maintainers, and automation understand who i
 The workflow is designed to be quick and predictable:
 
 - no dependency installation,
-- no dependency installation or package registry calls,
-- one shell runner,
+- no package registry calls,
+- one shell runner for standards checks,
 - short timeout,
 - clear Markdown output locally and in GitHub Actions.
 
@@ -53,11 +53,11 @@ jobs:
     uses: OWNER/github-repo-standards/.github/workflows/repo-standards.yml@main
 ```
 
-The workflow checks out the target repository, checks out this repository's standards action from the same ref as the reusable workflow, then runs the shared composite action. Repositories that call this workflow through `workflow_call` only need to provide repository-specific check directories or config overrides when they want to extend the bundled defaults.
+The workflow checks out the target repository, checks out this repository's standards actions from the same ref as the reusable workflow, then runs the shared check action at `.github/actions/repo-standards`. Repositories that call this workflow through `workflow_call` only need to provide repository-specific check directories or config overrides when they want to extend the bundled defaults.
 
 ## Pull Request Comment Behavior
 
-The workflow posts a single pull request comment with a clear pass/fail heading, emoji status indicators, the standards result table, and a link back to the workflow run. A hidden marker lets later runs find and update the same comment. This keeps reviewer visibility high while avoiding repeated comment spam.
+The workflow uses the shared comment action at `.github/actions/repo-standards-comment` to post a single pull request comment with a clear pass/fail heading, emoji status indicators, the standards result table, and a link back to the workflow run. A hidden marker lets later runs find and update the same comment. This keeps reviewer visibility high while avoiding repeated comment spam.
 
 ## Adding More Rules
 
