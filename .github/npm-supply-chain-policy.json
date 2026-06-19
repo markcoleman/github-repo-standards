@@ -1,0 +1,7 @@
+{
+  "minimumReleaseAgeDays": 7,
+  "installCommand": "npm ci --ignore-scripts",
+  "requireLockfile": true,
+  "requireExactRegistryVersions": true,
+  "allowInstallScriptsByDefault": false
+}

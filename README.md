@@ -108,6 +108,31 @@ The repository includes GitHub-native platform configuration that consuming team
 
 These files are intentionally simple examples. Organizations should replace placeholder owner/team values with real GitHub teams, security contacts, and catalog annotations before enforcing them broadly.
 
+
+## Secure npm Package Manager Skeleton
+
+A minimal npm example lives in `examples/npm-secure-skeleton`. It demonstrates a locked install flow and a small script that imports the local `@example/safe-greeter` package from `examples/safe-greeter`. The example is intentionally small so consumers can copy the pattern without adding unnecessary registry dependencies.
+
+Supply-chain controls in the skeleton include:
+
+- a committed `package-lock.json`;
+- a project `.npmrc` with `package-lock=true`, `save-exact=true`, and `ignore-scripts=true`;
+- an `install:locked` script that runs `npm ci --ignore-scripts` so installs fail rather than update the lock file;
+- a repository policy file at `.github/npm-supply-chain-policy.json` requiring a seven-day dependency cool-down period for newly selected registry versions;
+- `tools/validate-npm-policy.mjs`, which checks that the lock file, npm config, locked install command, exact dependency convention, and policy settings remain in place.
+
+Use the example locally with:
+
+```bash
+cd examples/npm-secure-skeleton
+npm run install:locked
+npm start
+cd ../..
+node tools/validate-npm-policy.mjs examples/npm-secure-skeleton
+```
+
+When adding registry dependencies, wait until the version has satisfied the cool-down period in `.github/npm-supply-chain-policy.json`, pin the exact version in `package.json`, regenerate the lock file intentionally, and keep automation on `npm ci --ignore-scripts` instead of `npm install`.
+
 ## Pull Request Comment
 
 On pull requests, the workflow posts a single status comment marked with `<!-- repo-standards-status -->`. Later runs update that comment instead of creating duplicates. Set `post-pr-comment: false` to disable comment publishing while still running the checks and writing the GitHub Step Summary.

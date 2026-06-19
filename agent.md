@@ -18,7 +18,7 @@ Run this before finishing changes:
 .github/actions/repo-standards/validate-repo-standards.sh
 ```
 
-When changing workflow behavior, review `.github/workflows/repo-standards.yml` and update `docs/repo-standards.md` if adoption guidance changes.
+When changing workflow behavior, repository policy, or validation scripts, review `.github/workflows/repo-standards.yml` and update `README.md` and `docs/repo-standards.md` if adoption guidance changes.
 
 ## Security Expectations
 
@@ -30,7 +30,7 @@ When changing workflow behavior, review `.github/workflows/repo-standards.yml` a
 ## Developer Experience Expectations
 
 - Keep remediation text actionable when a standards check fails.
-- Update README and reference docs in the same change that updates standards behavior.
+- Update README and reference docs in the same change that updates standards behavior, repository policy, supply-chain conventions, or validation workflows.
 - Favor local commands that work without package installation or network access.
 
 ## Design Intent
