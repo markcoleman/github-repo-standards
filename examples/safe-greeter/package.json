@@ -3,5 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "index.js"
+  "main": "index.js",
+  "scripts": {
+    "install:locked": "npm ci --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
 }

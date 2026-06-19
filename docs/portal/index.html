@@ -58,7 +58,7 @@
           </div>
           <div class="metric-grid" aria-label="Default standards">
             <div>
-              <span class="metric-value">9</span>
+              <span class="metric-value">10</span>
               <span class="metric-label">Bundled checks</span>
             </div>
             <div>
@@ -197,6 +197,18 @@ jobs:
             </p>
             <a href="#security">Explore platform controls</a>
           </article>
+          <article class="standard-card">
+            <div>
+              <p class="standard-kicker">Check 100</p>
+              <h3>npm policy required when detected</h3>
+            </div>
+            <p>
+              Finds npm projects and validates package locks, locked installs,
+              dependency cool-down policy, exact registry versions, npm audit,
+              disabled lifecycle scripts, and required <code>.npmrc</code> settings.
+            </p>
+            <a href="#security">Review npm controls</a>
+          </article>
         </div>
       </section>
 
@@ -283,6 +295,7 @@ updates:
               <li>Require repository standards and security analysis checks before merge.</li>
               <li>Enable Dependabot alerts, security updates, secret scanning, and push protection.</li>
               <li>Review third-party actions and keep workflow permissions scoped to each job.</li>
+              <li>For npm projects, require <code>npm ci --ignore-scripts</code>, committed locks, a release cool-down, exact registry versions, and policy validation.</li>
               <li>Upload SARIF from supported analyzers so findings appear in code scanning.</li>
             </ul>
           </div>

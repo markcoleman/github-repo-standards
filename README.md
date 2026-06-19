@@ -21,6 +21,7 @@ The default check action validates:
 - `.github/dependabot.yml` exists and declares dependency update automation coverage.
 - `.github/workflows/security-analysis.yml` exists and runs CodeQL, OpenSSF Scorecard, SARIF upload, or equivalent supply-chain analysis.
 - `ownership.yaml` or `catalog-info.yaml` exists and identifies repository ownership metadata for teams and portals.
+- every detected npm project with a `package.json` passes the npm supply-chain policy validator.
 
 The README path, minimum byte count, policy file paths, security automation path, and ownership metadata path are configurable through a simple data-only config file. The bundled defaults live in `.github/actions/repo-standards/config.env`.
 
@@ -116,10 +117,10 @@ A minimal npm example lives in `examples/npm-secure-skeleton`. It demonstrates a
 Supply-chain controls in the skeleton include:
 
 - a committed `package-lock.json`;
-- a project `.npmrc` with `package-lock=true`, `save-exact=true`, and `ignore-scripts=true`;
+- a project `.npmrc` with `package-lock=true`, `save-exact=true`, `ignore-scripts=true`, `audit=true`, and `fund=false`;
 - an `install:locked` script that runs `npm ci --ignore-scripts` so installs fail rather than update the lock file;
 - a repository policy file at `.github/npm-supply-chain-policy.json` requiring a seven-day dependency cool-down period for newly selected registry versions;
-- `tools/validate-npm-policy.mjs`, which checks that the lock file, npm config, locked install command, exact dependency convention, and policy settings remain in place.
+- `tools/validate-npm-policy.mjs`, which checks that the lock file, npm config, locked install command, exact dependency convention, npm engine declaration, audit/funding settings, and policy settings remain in place.
 
 Use the example locally with:
 
@@ -132,6 +133,8 @@ node tools/validate-npm-policy.mjs examples/npm-secure-skeleton
 ```
 
 When adding registry dependencies, wait until the version has satisfied the cool-down period in `.github/npm-supply-chain-policy.json`, pin the exact version in `package.json`, regenerate the lock file intentionally, and keep automation on `npm ci --ignore-scripts` instead of `npm install`.
+
+The required standards workflow now automatically detects npm projects by finding `package.json` files outside `node_modules`. If any are present, each project must include a compliant `.npmrc`, committed lock file, npm engine declaration, exact registry dependency versions, and an `install:locked` script that only installs the package versions represented in the lock file.
 
 ## Pull Request Comment
 

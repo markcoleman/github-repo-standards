@@ -75,13 +75,23 @@ if (policy.installCommand !== 'npm ci --ignore-scripts') {
 }
 if (policy.requireExactRegistryVersions !== true) failures.push('Policy must require exact registry versions.');
 if (policy.allowInstallScriptsByDefault !== false) failures.push('Policy must disable install scripts by default.');
+if (policy.requireAudit !== true) failures.push('Policy must require npm audit to stay enabled.');
+if (policy.disableFundingMessages !== true) failures.push('Policy must disable npm funding prompts in automated installs.');
 
 assertEqual(npmrc.get('package-lock'), 'true', '.npmrc package-lock setting');
 assertEqual(npmrc.get('save-exact'), 'true', '.npmrc save-exact setting');
 assertEqual(npmrc.get('ignore-scripts'), 'true', '.npmrc ignore-scripts setting');
+assertEqual(npmrc.get('audit'), 'true', '.npmrc audit setting');
+assertEqual(npmrc.get('fund'), 'false', '.npmrc fund setting');
 
 if (pkg.scripts?.['install:locked'] !== 'npm ci --ignore-scripts') {
   failures.push('package.json must expose scripts.install:locked as npm ci --ignore-scripts.');
+}
+if (pkg.packageManager && !pkg.packageManager.startsWith('npm@')) {
+  failures.push(`package.json packageManager must use npm when set, found ${pkg.packageManager}`);
+}
+if (pkg.engines?.npm === undefined) {
+  failures.push('package.json must declare engines.npm so contributors use a known npm baseline.');
 }
 
 assertExactDependencyVersions(pkg.dependencies, 'dependencies');
@@ -89,10 +99,19 @@ assertExactDependencyVersions(pkg.devDependencies, 'devDependencies');
 assertExactDependencyVersions(pkg.optionalDependencies, 'optionalDependencies');
 
 if (lock.lockfileVersion === undefined) failures.push('package-lock.json must include lockfileVersion.');
+if (lock.lockfileVersion !== undefined && lock.lockfileVersion < 2) {
+  failures.push(`package-lock.json must use lockfileVersion 2 or newer, found ${lock.lockfileVersion}.`);
+}
 const rootPackage = lock.packages?.[''];
 if (!rootPackage) failures.push('package-lock.json must include the root package entry.');
 if (rootPackage && JSON.stringify(rootPackage.dependencies ?? {}) !== JSON.stringify(pkg.dependencies ?? {})) {
   failures.push('package-lock.json root dependencies must match package.json dependencies.');
+}
+if (rootPackage && JSON.stringify(rootPackage.devDependencies ?? {}) !== JSON.stringify(pkg.devDependencies ?? {})) {
+  failures.push('package-lock.json root devDependencies must match package.json devDependencies.');
+}
+if (rootPackage && JSON.stringify(rootPackage.optionalDependencies ?? {}) !== JSON.stringify(pkg.optionalDependencies ?? {})) {
+  failures.push('package-lock.json root optionalDependencies must match package.json optionalDependencies.');
 }
 
 if (failures.length > 0) {
