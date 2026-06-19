@@ -1,0 +1,23 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: github-repo-standards
+  title: GitHub Repository Standards
+  description: Reusable GitHub Actions workflow and developer portal for baseline repository governance.
+  annotations:
+    github.com/project-slug: markcoleman/github-repo-standards
+    backstage.io/source-location: url:https://github.com/markcoleman/github-repo-standards
+  tags:
+    - github-actions
+    - repository-standards
+    - supply-chain
+    - developer-portal
+  links:
+    - url: ./docs/portal/index.html
+      title: Standards Developer Portal
+      icon: docs
+spec:
+  type: service
+  lifecycle: production
+  owner: platform-engineering
+  system: developer-experience

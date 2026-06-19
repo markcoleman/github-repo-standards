@@ -27,6 +27,8 @@
           <a href="#quickstart">Quickstart</a>
           <a href="#standards">Standards</a>
           <a href="#extend">Extend</a>
+          <a href="#security">Security</a>
+          <a href="#ownership">Ownership</a>
           <a href="#operate">Operate</a>
         </div>
       </nav>
@@ -40,7 +42,7 @@
           <p class="hero-lede">
             A practical home for adopting lightweight repository standards,
             understanding the automation, and helping every team ship with a
-            clear README and accountable ownership.
+            clear README, accountable ownership, and supply-chain visibility.
           </p>
           <div class="hero-actions" aria-label="Primary actions">
             <a class="button primary" href="#quickstart">Start adoption</a>
@@ -56,7 +58,7 @@
           </div>
           <div class="metric-grid" aria-label="Default standards">
             <div>
-              <span class="metric-value">2</span>
+              <span class="metric-value">9</span>
               <span class="metric-label">Bundled checks</span>
             </div>
             <div>
@@ -78,6 +80,8 @@
 
 PASS  Root README is present
 PASS  CODEOWNERS is present
+PASS  Security analysis workflow is present
+PASS  Ownership metadata is present
 
 All repository standards checks passed.</code></pre>
           </div>
@@ -171,6 +175,28 @@ jobs:
             </p>
             <a href="reference/repo-standards.md">Understand the rule</a>
           </article>
+          <article class="standard-card">
+            <div>
+              <p class="standard-kicker">Checks 030-060</p>
+              <h3>Policy files required</h3>
+            </div>
+            <p>
+              Requires security reporting guidance, contributor workflow docs,
+              AI agent guardrails, and root ignore rules for local/generated artifacts.
+            </p>
+            <a href="reference/repo-standards.md">Review policy rules</a>
+          </article>
+          <article class="standard-card">
+            <div>
+              <p class="standard-kicker">Checks 070-090</p>
+              <h3>Security and ownership required</h3>
+            </div>
+            <p>
+              Requires dependency update automation, security or supply-chain
+              analysis, and ownership metadata for team operations or catalogs.
+            </p>
+            <a href="#security">Explore platform controls</a>
+          </article>
         </div>
       </section>
 
@@ -228,6 +254,68 @@ fi</code></pre>
         </div>
       </section>
 
+      <section class="section-band split" id="security" aria-labelledby="security-title">
+        <div class="section-heading sticky-heading">
+          <p class="eyebrow">Security and supply chain</p>
+          <h2 id="security-title">Use GitHub-native controls as a baseline.</h2>
+          <p>
+            Pair the standards workflow with Dependabot, CodeQL, OpenSSF
+            Scorecard, least-privilege workflow permissions, SARIF upload,
+            secret scanning, push protection, and branch rulesets.
+          </p>
+        </div>
+        <div class="stack">
+          <div class="code-copy">
+            <div class="code-header">
+              <span>.github/dependabot.yml</span>
+              <button class="copy-button" type="button" data-copy="dependabot-yaml">Copy</button>
+            </div>
+            <pre><code id="dependabot-yaml">version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"</code></pre>
+          </div>
+          <div class="check-list" aria-label="Recommended platform controls">
+            <h3>Recommended controls</h3>
+            <ul>
+              <li>Require repository standards and security analysis checks before merge.</li>
+              <li>Enable Dependabot alerts, security updates, secret scanning, and push protection.</li>
+              <li>Review third-party actions and keep workflow permissions scoped to each job.</li>
+              <li>Upload SARIF from supported analyzers so findings appear in code scanning.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-band split" id="ownership" aria-labelledby="ownership-title">
+        <div class="section-heading sticky-heading">
+          <p class="eyebrow">Team ownership</p>
+          <h2 id="ownership-title">Combine CODEOWNERS with catalog metadata.</h2>
+          <p>
+            CODEOWNERS routes review requests. Repository ownership metadata and
+            a Backstage-compatible catalog descriptor add operational context for
+            teams, service catalogs, escalation, and developer portals.
+          </p>
+        </div>
+        <div class="code-copy">
+          <div class="code-header">
+            <span>catalog-info.yaml</span>
+            <button class="copy-button" type="button" data-copy="catalog-yaml">Copy</button>
+          </div>
+          <pre><code id="catalog-yaml">apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: github-repo-standards
+spec:
+  type: service
+  lifecycle: production
+  owner: platform-engineering
+  system: developer-experience</code></pre>
+        </div>
+      </section>
+
       <section class="section-band compact" id="operate" aria-labelledby="operate-title">
         <div class="section-heading">
           <p class="eyebrow">Operate</p>
@@ -262,6 +350,8 @@ fi</code></pre>
         <div class="reference-links">
           <a href="reference/README.md">README reference</a>
           <a href="reference/repo-standards.md">Workflow details</a>
+          <a href="reference/catalog-info.yaml">Catalog descriptor</a>
+          <a href="reference/ownership.yaml">Ownership metadata</a>
           <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages">GitHub Pages custom workflows</a>
         </div>
       </section>

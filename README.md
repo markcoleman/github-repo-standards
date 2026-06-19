@@ -6,7 +6,7 @@ Reusable GitHub Actions automation for lightweight repository standards. This re
 - `.github/actions/repo-standards-comment` creates or updates one pull request status comment from that summary.
 - `.github/workflows/standards-pages.yml` publishes the standards developer portal to GitHub Pages as static HTML.
 
-The bundled standards are intentionally small and broadly useful: every repository should have a non-empty root `README.md`, a populated `CODEOWNERS` file, security reporting guidance, contributor workflow documentation, AI agent guardrails, and root ignore rules for local/generated artifacts.
+The bundled standards are intentionally small and broadly useful: every repository should have a non-empty root `README.md`, a populated `CODEOWNERS` file, security reporting guidance, contributor workflow documentation, AI agent guardrails, root ignore rules for local/generated artifacts, dependency update automation, security/supply-chain analysis, and ownership/catalog metadata.
 
 ## What It Checks
 
@@ -18,8 +18,11 @@ The default check action validates:
 - `CONTRIBUTING.md` exists at the repository root and documents developer workflow expectations.
 - `agent.md`, `AGENTS.md`, or `.github/AGENTS.md` exists and documents AI agent guardrails.
 - `.gitignore` exists at the repository root and contains ignore rules for local/generated artifacts.
+- `.github/dependabot.yml` exists and declares dependency update automation coverage.
+- `.github/workflows/security-analysis.yml` exists and runs CodeQL, OpenSSF Scorecard, SARIF upload, or equivalent supply-chain analysis.
+- `ownership.yaml` or `catalog-info.yaml` exists and identifies repository ownership metadata for teams and portals.
 
-The README path, minimum byte count, and policy file paths are configurable through a simple data-only config file. The bundled defaults live in `.github/actions/repo-standards/config.env`.
+The README path, minimum byte count, policy file paths, security automation path, and ownership metadata path are configurable through a simple data-only config file. The bundled defaults live in `.github/actions/repo-standards/config.env`.
 
 ## Reuse From Another Repository
 
@@ -93,6 +96,17 @@ fi
 ```
 
 Keep checks deterministic and dependency-free unless a standard truly needs extra tooling.
+
+## Security, Supply Chain, and Ownership Baselines
+
+The repository includes GitHub-native platform configuration that consuming teams can adopt or adapt:
+
+- Dependabot monitors GitHub Actions dependencies weekly through `.github/dependabot.yml`.
+- The security analysis workflow runs CodeQL for portal JavaScript and OpenSSF Scorecard with SARIF upload on pull requests, pushes to `main`, a weekly schedule, and manual dispatch.
+- `CODEOWNERS` remains the review-routing source of truth, while `ownership.yaml` adds team escalation metadata for humans and automation.
+- `catalog-info.yaml` provides a Backstage-compatible component descriptor so a software catalog can discover the repository, owner, lifecycle, system, tags, and documentation link.
+
+These files are intentionally simple examples. Organizations should replace placeholder owner/team values with real GitHub teams, security contacts, and catalog annotations before enforcing them broadly.
 
 ## Pull Request Comment
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Repository standards make basic project expectations visible, automated, and consistent. The rules are deliberately simple and high-signal: every repository must have root documentation, ownership metadata, security reporting guidance, contributor workflow guidance, AI agent guardrails, and ignore rules for local/generated artifacts.
+Repository standards make basic project expectations visible, automated, and consistent. The rules are deliberately simple and high-signal: every repository must have root documentation, ownership metadata, security reporting guidance, contributor workflow guidance, AI agent guardrails, ignore rules for local/generated artifacts, dependency update automation, security/supply-chain analysis, and ownership/catalog metadata.
 
 A README matters because it gives contributors and maintainers one reliable place to understand:
 
@@ -71,6 +71,31 @@ The standards check requires:
 - with non-empty content.
 
 Ignore rules are a lightweight control for repository hygiene. They reduce accidental commits of local caches, editor state, build output, test artifacts, agent scratch files, and other generated files that should not become long-lived source artifacts.
+
+## Rule: Dependency Update Automation Required
+
+The standards check requires a non-empty `.github/dependabot.yml` by default with at least one `package-ecosystem` entry. For this repository the baseline covers GitHub Actions updates weekly, which keeps reusable workflow dependencies visible to maintainers.
+
+## Rule: Security and Supply Chain Analysis Required
+
+The standards check requires a non-empty security analysis workflow at `.github/workflows/security-analysis.yml` by default. The workflow should declare at least one recognizable analyzer such as CodeQL, OpenSSF Scorecard, dependency review, Trivy, SLSA provenance, or SARIF upload. This repository includes CodeQL analysis for the portal JavaScript and OpenSSF Scorecard results uploaded as SARIF.
+
+Recommended GitHub platform controls to pair with the workflow include:
+
+- secret scanning and push protection,
+- Dependabot alerts and security updates,
+- branch protection or rulesets that require standards and security checks,
+- least-privilege workflow permissions,
+- reviewed third-party actions and pinned action upgrade ownership.
+
+## Rule: Ownership Metadata Required
+
+The standards check requires either `ownership.yaml` or `catalog-info.yaml` by default. `CODEOWNERS` routes review requests, while ownership metadata records human and platform context such as the owning team, security contact, escalation channel, service tier, system, lifecycle, and catalog annotations.
+
+This repository includes both:
+
+- `ownership.yaml` for repository governance and team escalation metadata,
+- `catalog-info.yaml` as a Backstage-compatible `Component` descriptor for software catalog ingestion.
 
 ## Developer Experience
 
