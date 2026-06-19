@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Repository standards make basic project expectations visible, automated, and consistent. The initial rules are deliberately simple: every repository must have a root-level `README.md` with content and a populated `CODEOWNERS` file.
+Repository standards make basic project expectations visible, automated, and consistent. The rules are deliberately simple and high-signal: every repository must have root documentation, ownership metadata, security reporting guidance, contributor workflow guidance, AI agent guardrails, and ignore rules for local/generated artifacts.
 
 A README matters because it gives contributors and maintainers one reliable place to understand:
 
@@ -19,7 +19,7 @@ The standards check requires:
 - located at the repository root,
 - with at least one byte of content by default.
 
-The path and minimum byte count are configurable in the bundled action config at `.github/actions/repo-standards/config.env`, or by passing a repository-specific config file through the reusable workflow. The config file supports simple `KEY=value` lines and comments; it is parsed as data instead of evaluated as shell.
+The path and minimum byte count are configurable in the bundled action config at `.github/actions/repo-standards/config.env`, or by passing a repository-specific config file through the reusable workflow. The policy-file checks also support path overrides for security, contributing, agent guidance, and ignore files. The config file supports simple `KEY=value` lines and comments; it is parsed as data instead of evaluated as shell.
 
 ## Rule: CODEOWNERS Required
 
@@ -30,6 +30,47 @@ The standards check requires:
 - at least one owner listed for that entry.
 
 Ownership metadata helps reviewers, maintainers, and automation understand who is responsible for changes across the repository.
+
+
+## Rule: Security Policy Required
+
+The standards check requires:
+
+- a file named `SECURITY.md`,
+- located at the repository root by default,
+- with non-empty content that tells contributors how to report suspected vulnerabilities privately.
+
+Security policy documentation is a guardrail for incident response. It prevents contributors from disclosing sensitive findings in public issues and gives maintainers a single place to document secure development expectations such as least-privilege automation, secret rotation, dependency hygiene, and ownership of security-sensitive files.
+
+## Rule: Contributing Guide Required
+
+The standards check requires:
+
+- a file named `CONTRIBUTING.md`,
+- located at the repository root by default,
+- with non-empty content that explains the expected contributor workflow.
+
+Contributor documentation improves developer experience by making setup, validation, pull request expectations, documentation updates, screenshots, and review handoffs explicit. A healthy repository should not rely on tribal knowledge for routine contributions.
+
+## Rule: Agent Guidance Required
+
+The standards check requires one non-empty AI agent guidance file, accepted in this order by default:
+
+- `agent.md`,
+- `AGENTS.md`,
+- `.github/AGENTS.md`.
+
+Agent guidance documents how automated coding agents should work in the repository. It should describe preserved design intent, validation commands, documentation expectations, generated-artifact rules, and repository-specific constraints. This keeps future agent contributions aligned with maintainers instead of leaving agents to infer policy from existing files alone.
+
+## Rule: Root Git Ignore Required
+
+The standards check requires:
+
+- a file named `.gitignore`,
+- located at the repository root by default,
+- with non-empty content.
+
+Ignore rules are a lightweight control for repository hygiene. They reduce accidental commits of local caches, editor state, build output, test artifacts, agent scratch files, and other generated files that should not become long-lived source artifacts.
 
 ## Developer Experience
 
