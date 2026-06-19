@@ -3,5 +3,7 @@
   "installCommand": "npm ci --ignore-scripts",
   "requireLockfile": true,
   "requireExactRegistryVersions": true,
-  "allowInstallScriptsByDefault": false
+  "allowInstallScriptsByDefault": false,
+  "requireAudit": true,
+  "disableFundingMessages": true
 }

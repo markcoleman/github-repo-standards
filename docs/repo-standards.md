@@ -97,6 +97,22 @@ This repository includes both:
 - `ownership.yaml` for repository governance and team escalation metadata,
 - `catalog-info.yaml` as a Backstage-compatible `Component` descriptor for software catalog ingestion.
 
+## Rule: npm Supply-Chain Policy Required When npm Is Detected
+
+The standards check detects npm projects by finding `package.json` files outside `.git` and `node_modules`. When any npm project is present, every detected project must pass `tools/validate-npm-policy.mjs`.
+
+The npm policy requires:
+
+- a committed `package-lock.json` with a modern lockfile version and a root package entry;
+- a project `.npmrc` with `package-lock=true`, `save-exact=true`, `ignore-scripts=true`, `audit=true`, and `fund=false`;
+- a package script named `install:locked` that runs `npm ci --ignore-scripts`;
+- exact registry dependency versions in `dependencies`, `devDependencies`, and `optionalDependencies`, while allowing local and alias specifications such as `file:`, `workspace:`, `link:`, and `npm:`;
+- lock-file dependency declarations that match `package.json`;
+- an `engines.npm` declaration so contributors and automation use a known npm baseline;
+- a repository policy at `.github/npm-supply-chain-policy.json` that requires a dependency release cool-down, lock-file usage, exact registry versions, disabled install scripts by default, npm audit, and disabled funding prompts.
+
+This rule keeps npm installs reproducible: required workflows must use `npm ci --ignore-scripts`, which installs only the package set and versions represented in the committed lock file and fails instead of rewriting dependency resolution.
+
 
 ## Secure npm Package Manager Skeleton
 
@@ -109,6 +125,8 @@ The convention for npm projects is:
 - keep `package-lock=true` so npm writes and respects the lock file;
 - keep `save-exact=true` so new registry dependencies are pinned exactly;
 - keep `ignore-scripts=true` so dependency lifecycle scripts do not run by default;
+- keep `audit=true` so npm audit metadata remains available;
+- keep `fund=false` so automated installs do not emit funding prompts;
 - require a cool-down period before adopting newly published registry versions. This repository records that policy as `minimumReleaseAgeDays` in `.github/npm-supply-chain-policy.json`;
 - validate the convention with `node tools/validate-npm-policy.mjs examples/npm-secure-skeleton`.
 
