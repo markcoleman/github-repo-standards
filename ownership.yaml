@@ -1,0 +1,19 @@
+apiVersion: repo-standards.github.com/v1alpha1
+kind: RepositoryOwnership
+metadata:
+  name: github-repo-standards
+spec:
+  serviceTier: shared-platform
+  primaryOwner: platform-engineering
+  codeOwnersFile: CODEOWNERS
+  securityContact: platform-security
+  escalation:
+    slack: "#platform-engineering"
+    issueLabel: "area/repo-standards"
+  reviewExpectations:
+    defaultReviewers: 1
+    securitySensitivePaths:
+      - .github/workflows/**
+      - .github/actions/**
+      - SECURITY.md
+      - CODEOWNERS

@@ -6,10 +6,14 @@ on:
       - main
     paths:
       - README.md
+      - catalog-info.yaml
+      - ownership.yaml
       - docs/**
+      - .github/dependabot.yml
       - .github/actions/repo-standards/**
       - .github/actions/repo-standards-comment/**
       - .github/workflows/repo-standards.yml
+      - .github/workflows/security-analysis.yml
       - .github/workflows/standards-pages.yml
   workflow_dispatch:
 
@@ -45,6 +49,8 @@ jobs:
           cp -R docs/portal/. _site/
           cp README.md _site/reference/README.md
           cp docs/repo-standards.md _site/reference/repo-standards.md
+          cp catalog-info.yaml _site/reference/catalog-info.yaml
+          cp ownership.yaml _site/reference/ownership.yaml
 
           {
             echo "Repository Standards Developer Portal"

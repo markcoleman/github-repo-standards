@@ -693,3 +693,22 @@
     }
   }
 }
+
+@layer components {
+  .check-list {
+    background: color-mix(in srgb, var(--surface), transparent 4%);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+    padding: clamp(1.2rem, 3vw, 2rem);
+  }
+
+  .check-list ul {
+    margin: 1rem 0 0;
+    padding-left: 1.2rem;
+  }
+
+  .check-list li + li {
+    margin-top: 0.65rem;
+  }
+}
