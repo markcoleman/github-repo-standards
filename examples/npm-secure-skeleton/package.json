@@ -1,0 +1,19 @@
+{
+  "name": "secure-npm-skeleton",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Minimal npm package-manager skeleton that installs only from the lock file.",
+  "type": "module",
+  "scripts": {
+    "install:locked": "npm ci --ignore-scripts",
+    "start": "node scripts/hello.js",
+    "validate:policy": "cd ../.. && node tools/validate-npm-policy.mjs examples/npm-secure-skeleton"
+  },
+  "dependencies": {
+    "@example/safe-greeter": "file:../safe-greeter"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

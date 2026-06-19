@@ -97,6 +97,25 @@ This repository includes both:
 - `ownership.yaml` for repository governance and team escalation metadata,
 - `catalog-info.yaml` as a Backstage-compatible `Component` descriptor for software catalog ingestion.
 
+
+## Secure npm Package Manager Skeleton
+
+The repository includes a minimal npm skeleton under `examples/npm-secure-skeleton` and a local package under `examples/safe-greeter`. The sample application imports `@example/safe-greeter` from the locked dependency tree and can be run with `npm start` after a locked install.
+
+The convention for npm projects is:
+
+- commit `package.json`, `package-lock.json`, and the project `.npmrc`;
+- install in automation with `npm ci --ignore-scripts` only;
+- keep `package-lock=true` so npm writes and respects the lock file;
+- keep `save-exact=true` so new registry dependencies are pinned exactly;
+- keep `ignore-scripts=true` so dependency lifecycle scripts do not run by default;
+- require a cool-down period before adopting newly published registry versions. This repository records that policy as `minimumReleaseAgeDays` in `.github/npm-supply-chain-policy.json`;
+- validate the convention with `node tools/validate-npm-policy.mjs examples/npm-secure-skeleton`.
+
+The validation script is intentionally dependency-free. It verifies the policy file, required npm settings, locked install command, exact dependency specs for registry dependencies, and consistency between `package.json` and `package-lock.json`.
+
+To refresh the skeleton intentionally, update `package.json`, regenerate the lock file with `npm install --package-lock-only --ignore-scripts`, inspect the diff, run `npm run install:locked`, run `npm start`, and run the validator. Do not replace the locked install flow with `npm install` in CI or required workflows.
+
 ## Developer Experience
 
 The workflow is designed to be quick and predictable:
