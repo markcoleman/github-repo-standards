@@ -6,7 +6,7 @@ Reusable GitHub Actions automation for lightweight repository standards. This re
 - `.github/actions/repo-standards-comment` creates or updates one pull request status comment from that summary.
 - `.github/workflows/standards-pages.yml` publishes the standards developer portal to GitHub Pages as static HTML.
 
-The bundled standards are intentionally small and broadly useful: every repository should have a non-empty root `README.md` and a populated `CODEOWNERS` file.
+The bundled standards are intentionally small and broadly useful: every repository should have a non-empty root `README.md`, a populated `CODEOWNERS` file, security reporting guidance, contributor workflow documentation, AI agent guardrails, and root ignore rules for local/generated artifacts.
 
 ## What It Checks
 
@@ -14,8 +14,12 @@ The default check action validates:
 
 - `README.md` exists at the repository root and contains content.
 - `CODEOWNERS` or `.github/CODEOWNERS` exists and contains at least one owner entry.
+- `SECURITY.md` exists at the repository root and documents vulnerability reporting expectations.
+- `CONTRIBUTING.md` exists at the repository root and documents developer workflow expectations.
+- `agent.md`, `AGENTS.md`, or `.github/AGENTS.md` exists and documents AI agent guardrails.
+- `.gitignore` exists at the repository root and contains ignore rules for local/generated artifacts.
 
-The README path and minimum byte count are configurable through a simple data-only config file. The bundled defaults live in `.github/actions/repo-standards/config.env`.
+The README path, minimum byte count, and policy file paths are configurable through a simple data-only config file. The bundled defaults live in `.github/actions/repo-standards/config.env`.
 
 ## Reuse From Another Repository
 
