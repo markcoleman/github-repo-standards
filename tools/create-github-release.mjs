@@ -230,6 +230,7 @@ function findPreviousRelease(releases, { includePrereleases }) {
 
 function markdownTableCell(value) {
   return String(value ?? "")
+    .replace(/\\/g, "\\\\")
     .replace(/\r?\n/g, " ")
     .replace(/\|/g, "\\|");
 }
