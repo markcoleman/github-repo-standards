@@ -17,6 +17,11 @@ on:
         required: false
         type: string
         default: ''
+      policy-categories:
+        description: Comma-separated bundled policy categories to run. Empty or all runs every category.
+        required: false
+        type: string
+        default: ''
       post-pr-comment:
         description: Whether to create or update a pull request status comment.
         required: false
@@ -49,12 +54,13 @@ jobs:
           ref: ${{ job.workflow_sha }}
           path: .repo-standards-action
 
-      - name: Run standards checks
+      - name: Run categorized policy checks
         id: standards
         uses: ./.repo-standards-action/.github/actions/repo-standards
         with:
           config-path: ${{ inputs['config-path'] || '' }}
           check-directory: ${{ inputs['check-directory'] || '' }}
+          policy-categories: ${{ inputs['policy-categories'] || '' }}
 
       - name: Update pull request status comment
         if: ${{ always() && github.event_name == 'pull_request' && toJSON(inputs['post-pr-comment']) != 'false' }}

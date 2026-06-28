@@ -4,6 +4,20 @@
 
 Repository standards make basic project expectations visible, automated, and consistent. The rules are deliberately simple and high-signal: every repository must have root documentation, ownership metadata, security reporting guidance, contributor workflow guidance, AI agent guardrails, ignore rules for local/generated artifacts, dependency update automation, security/supply-chain analysis, and ownership/catalog metadata.
 
+The bundled implementation is organized into policy categories:
+
+| Category | Directory | Purpose |
+| --- | --- | --- |
+| Documentation policies | `.github/actions/repo-standards/policies/documentation` | Repository entry points and contributor guidance. |
+| Repository identity policies | `.github/actions/repo-standards/policies/repository-identity` | Review routing, ownership, and catalog metadata. |
+| Developer hygiene policies | `.github/actions/repo-standards/policies/developer-hygiene` | AI agent guardrails and local/generated artifact hygiene. |
+| Security policies | `.github/actions/repo-standards/policies/security` | Vulnerability reporting and required security analysis automation. |
+| Supply-chain policies | `.github/actions/repo-standards/policies/supply-chain` | Dependency update automation and npm install reproducibility. |
+
+The reusable workflow still emits one stable required-check context, while the Markdown summary includes the policy category for each result. That balance keeps organization-level branch protection easy to manage without hiding which guardrail failed.
+
+Every category shares the same `.github/actions/repo-standards` composite action and shell validator. Adding a policy means adding a small sourced shell script to a category folder, not creating another workflow, checkout sequence, summary formatter, or pull request comment implementation.
+
 A README matters because it gives contributors and maintainers one reliable place to understand:
 
 - what the repository contains,
@@ -140,7 +154,8 @@ The workflow is designed to be quick and predictable:
 
 - no dependency installation,
 - no package registry calls,
-- one shell runner for standards checks,
+- one shell runner for categorized policy checks,
+- categorized policy folders discovered from the checked-out standards repository,
 - short timeout,
 - clear Markdown output locally and in GitHub Actions.
 
@@ -173,13 +188,25 @@ jobs:
 
 The workflow checks out the target repository, checks out this repository's standards actions from the same ref as the reusable workflow, then runs the shared check action at `.github/actions/repo-standards`. Repositories that call this workflow through `workflow_call` only need to provide repository-specific check directories or config overrides when they want to extend the bundled defaults.
 
+The default organizational baseline runs every bundled policy category. Specialized required workflows can target a smaller slice:
+
+```yaml
+jobs:
+  documentation-and-security:
+    uses: OWNER/github-repo-standards/.github/workflows/repo-standards.yml@main
+    with:
+      policy-categories: documentation,security
+```
+
+Supported category identifiers are `documentation`, `repository-identity`, `developer-hygiene`, `security`, `supply-chain`, and `all`. Empty input is the same as `all`. Caller-specific `check-directory` scripts still run whenever they are configured, even when a bundled category subset is selected.
+
 ## Pull Request Comment Behavior
 
 The workflow uses the shared comment action at `.github/actions/repo-standards-comment` to post a single pull request comment with a clear pass/fail heading, emoji status indicators, the standards result table, and a link back to the workflow run. A hidden marker lets later runs find and update the same comment. This keeps reviewer visibility high while avoiding repeated comment spam.
 
 ## Adding More Rules
 
-Create another sorted shell script in `.github/actions/repo-standards/checks`.
+Create another sorted shell script in the relevant bundled category directory, such as `.github/actions/repo-standards/policies/documentation`, or add caller-specific scripts under `.github/repo-standards/checks` in a consuming repository.
 
 Example:
 
@@ -196,4 +223,4 @@ fi
 
 Use small focused checks so failures are easy to understand and safe to require across many repositories.
 
-Consuming repositories can add repository-specific checks by passing `check-directory` to the reusable workflow. For compatibility with the previous workflow default, `.github/repo-standards/checks` is also included automatically when it exists in the caller repository. The bundled checks still run first.
+Consuming repositories can add repository-specific checks by passing `check-directory` to the reusable workflow. For compatibility with the previous workflow default, `.github/repo-standards/checks` is also included automatically when it exists in the caller repository. The bundled categorized policies run first, and caller-specific checks are reported under `Custom policies`.
