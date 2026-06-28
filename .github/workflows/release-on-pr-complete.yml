@@ -1,0 +1,132 @@
+name: Release on PR Complete
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Optional explicit release tag, such as v1.4.0. Leave blank to bump from the latest release.
+        required: false
+        type: string
+      bump:
+        description: Semver bump to use when release_tag is blank.
+        required: true
+        type: choice
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+      publish:
+        description: Publish immediately instead of creating a draft release.
+        required: true
+        type: boolean
+        default: false
+      prerelease:
+        description: Mark the release as a prerelease.
+        required: true
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      default-bump:
+        description: Optional bump used for merged PRs without a release:major, release:minor, or release:patch label. Leave empty to skip unlabeled PRs.
+        required: false
+        type: string
+        default: ''
+      tag-prefix:
+        description: Prefix for generated semver tags.
+        required: false
+        type: string
+        default: v
+      release-config-file:
+        description: Release note category configuration file.
+        required: false
+        type: string
+        default: .github/release.yml
+      draft:
+        description: Create draft releases by default so maintainers can review generated notes before publishing.
+        required: false
+        type: boolean
+        default: true
+      prerelease:
+        description: Mark created releases as prereleases.
+        required: false
+        type: boolean
+        default: false
+      comment-on-pr:
+        description: Comment the release result back onto the completed pull request.
+        required: false
+        type: boolean
+        default: true
+    outputs:
+      release-url:
+        description: Created or existing release URL.
+        value: ${{ jobs['create-release'].outputs.release_url }}
+      release-tag:
+        description: Created or existing release tag.
+        value: ${{ jobs['create-release'].outputs.release_tag }}
+      previous-tag:
+        description: Previous release tag used for generated release notes.
+        value: ${{ jobs['create-release'].outputs.previous_tag }}
+      created:
+        description: Whether this run created a new release.
+        value: ${{ jobs['create-release'].outputs.created }}
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: release-on-pr-complete-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  create-release:
+    name: Create GitHub release
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      release_url: ${{ steps.release.outputs.release_url }}
+      release_tag: ${{ steps.release.outputs.release_tag }}
+      previous_tag: ${{ steps.release.outputs.previous_tag }}
+      created: ${{ steps.release.outputs.created }}
+
+    steps:
+      - name: Checkout target repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.base.ref || github.ref }}
+
+      - name: Checkout release tooling
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ job.workflow_repository || github.repository }}
+          ref: ${{ job.workflow_sha || github.sha }}
+          path: .release-automation
+
+      - name: Create draft release with generated notes
+        id: release
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_API_URL: ${{ github.api_url }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          RELEASE_TARGET_COMMITISH: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+          RELEASE_TAG: ${{ github.event.inputs.release_tag || '' }}
+          RELEASE_BUMP: ${{ github.event.inputs.bump || '' }}
+          RELEASE_DEFAULT_BUMP: ${{ inputs['default-bump'] || '' }}
+          RELEASE_TAG_PREFIX: ${{ inputs['tag-prefix'] || 'v' }}
+          RELEASE_CONFIG_FILE: ${{ inputs['release-config-file'] || '.github/release.yml' }}
+          RELEASE_DRAFT: ${{ toJSON(inputs.draft) }}
+          RELEASE_PUBLISH: ${{ github.event.inputs.publish || 'false' }}
+          RELEASE_PRERELEASE: ${{ github.event.inputs.prerelease || inputs.prerelease || 'false' }}
+          RELEASE_COMMENT_ON_PR: ${{ toJSON(inputs['comment-on-pr']) }}
+        run: node .release-automation/tools/create-github-release.mjs

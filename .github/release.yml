@@ -1,0 +1,46 @@
+changelog:
+  exclude:
+    labels:
+      - release:skip
+      - skip-changelog
+      - ignore-for-release
+    authors:
+      - github-actions[bot]
+  categories:
+    - title: Breaking Changes
+      labels:
+        - release:major
+        - breaking-change
+        - breaking
+    - title: Features
+      labels:
+        - release:minor
+        - enhancement
+        - feature
+    - title: Fixes
+      labels:
+        - release:patch
+        - bug
+        - fix
+    - title: Security
+      labels:
+        - security
+        - vulnerability
+    - title: Dependencies
+      labels:
+        - dependencies
+        - github-actions
+        - npm
+    - title: Documentation
+      labels:
+        - documentation
+        - docs
+    - title: Developer Experience
+      labels:
+        - developer-experience
+        - dx
+        - ci
+        - tooling
+    - title: Other Changes
+      labels:
+        - "*"

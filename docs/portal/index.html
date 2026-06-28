@@ -25,6 +25,7 @@
         </a>
         <div class="nav-links">
           <a href="#quickstart">Quickstart</a>
+          <a href="#release">Release</a>
           <a href="#standards">Standards</a>
           <a href="#extend">Extend</a>
           <a href="#security">Security</a>
@@ -227,6 +228,55 @@ jobs:
         </figure>
       </section>
 
+      <section class="section-band split" id="release" aria-labelledby="release-title">
+        <div class="section-heading sticky-heading">
+          <p class="eyebrow">Release management</p>
+          <h2 id="release-title">Create polished GitHub releases when a PR is complete.</h2>
+          <p>
+            Label a pull request with <code>release:patch</code>,
+            <code>release:minor</code>, or <code>release:major</code> before
+            merge. The workflow drafts a release with notes generated from the
+            previous published release and comments the link back onto the PR.
+          </p>
+        </div>
+        <div class="stack">
+          <div class="code-copy">
+            <div class="code-header">
+              <span>.github/workflows/release-on-pr-complete.yml</span>
+              <button class="copy-button" type="button" data-copy="release-yaml">Copy</button>
+            </div>
+            <pre><code id="release-yaml">name: Release on PR Complete
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    uses: OWNER/github-repo-standards/.github/workflows/release-on-pr-complete.yml@main</code></pre>
+          </div>
+          <div class="check-list" aria-label="Release label contract">
+            <h3>Release label contract</h3>
+            <ul>
+              <li><code>release:patch</code> creates the next patch version.</li>
+              <li><code>release:minor</code> creates the next minor version.</li>
+              <li><code>release:major</code> creates the next major version.</li>
+              <li><code>release:skip</code> leaves the completed PR out of release automation.</li>
+              <li>Draft releases include metadata, a compare range, generated notes, and a maintainer review checklist.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section class="section-band split" id="extend" aria-labelledby="extend-title">
         <div class="section-heading sticky-heading">
           <p class="eyebrow">Extend</p>
@@ -373,6 +423,7 @@ spec:
         <div class="reference-links">
           <a href="reference/README.md">README reference</a>
           <a href="reference/repo-standards.md">Workflow details</a>
+          <a href="reference/release-process.md">Release process</a>
           <a href="reference/catalog-info.yaml">Catalog descriptor</a>
           <a href="reference/ownership.yaml">Ownership metadata</a>
           <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages">GitHub Pages custom workflows</a>
