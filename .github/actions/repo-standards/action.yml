@@ -1,5 +1,5 @@
 name: Repository Standards
-description: Run repository standards checks and write a Markdown summary.
+description: Run categorized repository standards policies and write a Markdown summary.
 
 inputs:
   config-path:
@@ -8,6 +8,10 @@ inputs:
     default: ''
   check-directory:
     description: Optional path to additional repository standards check scripts.
+    required: false
+    default: ''
+  policy-categories:
+    description: Comma-separated policy categories to run. Empty or all runs every bundled category.
     required: false
     default: ''
   summary-file:
@@ -26,12 +30,13 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Run standards checks
+    - name: Run categorized policy checks
       id: standards
       shell: bash
       env:
         INPUT_CHECK_DIRECTORY: ${{ inputs.check-directory }}
         INPUT_CONFIG_PATH: ${{ inputs.config-path }}
+        INPUT_POLICY_CATEGORIES: ${{ inputs.policy-categories }}
         INPUT_SUMMARY_FILE: ${{ inputs.summary-file }}
         LEGACY_CHECK_DIRECTORY: .github/repo-standards/checks
       run: |
@@ -42,7 +47,7 @@ runs:
           summary_file="$RUNNER_TEMP/repo-standards-summary.md"
         fi
 
-        check_args=(--checks "$GITHUB_ACTION_PATH/checks")
+        check_args=()
         if [[ -d "$LEGACY_CHECK_DIRECTORY" ]]; then
           check_args+=(--checks "$LEGACY_CHECK_DIRECTORY")
         fi
@@ -50,6 +55,18 @@ runs:
           if [[ "$INPUT_CHECK_DIRECTORY" != "$LEGACY_CHECK_DIRECTORY" ]]; then
             check_args+=(--checks "$INPUT_CHECK_DIRECTORY")
           fi
+        fi
+
+        policy_args=(--policies "$GITHUB_ACTION_PATH/policies")
+        if [[ -n "$INPUT_POLICY_CATEGORIES" ]]; then
+          IFS=',' read -ra requested_categories <<< "$INPUT_POLICY_CATEGORIES"
+          for requested_category in "${requested_categories[@]}"; do
+            requested_category="${requested_category#"${requested_category%%[![:space:]]*}"}"
+            requested_category="${requested_category%"${requested_category##*[![:space:]]}"}"
+            if [[ -n "$requested_category" ]]; then
+              policy_args+=(--policy-category "$requested_category")
+            fi
+          done
         fi
 
         config_args=()
@@ -61,6 +78,7 @@ runs:
 
         "$GITHUB_ACTION_PATH/validate-repo-standards.sh" \
           "${config_args[@]}" \
+          "${policy_args[@]}" \
           "${check_args[@]}" \
           --summary-file "$summary_file"
         status=$?

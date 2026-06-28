@@ -56,10 +56,10 @@
             <span>repo-standards.yml</span>
             <span class="panel-meta">5 min timeout</span>
           </div>
-          <div class="metric-grid" aria-label="Default standards">
+          <div class="metric-grid" aria-label="Default policy baseline">
             <div>
-              <span class="metric-value">10</span>
-              <span class="metric-label">Bundled checks</span>
+              <span class="metric-value">5</span>
+              <span class="metric-label">Policy categories</span>
             </div>
             <div>
               <span class="metric-value">0</span>
@@ -148,64 +148,63 @@ jobs:
 
       <section class="section-band" id="standards" aria-labelledby="standards-title">
         <div class="section-heading">
-          <p class="eyebrow">Default standards</p>
+          <p class="eyebrow">Default policy categories</p>
           <h2 id="standards-title">Small rules, high leverage.</h2>
         </div>
         <div class="standards-grid">
           <article class="standard-card">
             <div>
-              <p class="standard-kicker">Check 010</p>
-              <h3>Root README required</h3>
+              <p class="standard-kicker">Documentation</p>
+              <h3>Repository docs required</h3>
             </div>
             <p>
-              Validates a root-level README file and enforces configurable
-              minimum content through <code>REQUIRED_README_PATH</code> and
-              <code>MIN_README_BYTES</code>.
+              Validates a root-level README and contributor guide so engineers
+              have a clear entry point and workflow expectations.
             </p>
             <a href="reference/repo-standards.md">Read implementation notes</a>
           </article>
           <article class="standard-card">
             <div>
-              <p class="standard-kicker">Check 020</p>
-              <h3>CODEOWNERS required</h3>
+              <p class="standard-kicker">Repository identity</p>
+              <h3>Ownership required</h3>
             </div>
             <p>
-              Accepts <code>CODEOWNERS</code> or <code>.github/CODEOWNERS</code>
-              when at least one non-comment entry includes an owner.
+              Requires review routing through CODEOWNERS and ownership metadata
+              for team escalation, service catalogs, and platform reporting.
             </p>
             <a href="reference/repo-standards.md">Understand the rule</a>
           </article>
           <article class="standard-card">
             <div>
-              <p class="standard-kicker">Checks 030-060</p>
-              <h3>Policy files required</h3>
+              <p class="standard-kicker">Developer hygiene</p>
+              <h3>Local guardrails required</h3>
             </div>
             <p>
-              Requires security reporting guidance, contributor workflow docs,
-              AI agent guardrails, and root ignore rules for local/generated artifacts.
+              Requires AI agent guidance and root ignore rules so local caches,
+              generated files, and automated contributions stay predictable.
             </p>
             <a href="reference/repo-standards.md">Review policy rules</a>
           </article>
           <article class="standard-card">
             <div>
-              <p class="standard-kicker">Checks 070-090</p>
-              <h3>Security and ownership required</h3>
+              <p class="standard-kicker">Security</p>
+              <h3>Security automation required</h3>
             </div>
             <p>
-              Requires dependency update automation, security or supply-chain
-              analysis, and ownership metadata for team operations or catalogs.
+              Requires vulnerability reporting guidance and a recognizable
+              security or supply-chain analysis workflow.
             </p>
             <a href="#security">Explore platform controls</a>
           </article>
           <article class="standard-card">
             <div>
-              <p class="standard-kicker">Check 100</p>
-              <h3>npm policy required when detected</h3>
+              <p class="standard-kicker">Supply chain</p>
+              <h3>Dependency controls required</h3>
             </div>
             <p>
-              Finds npm projects and validates package locks, locked installs,
-              dependency cool-down policy, exact registry versions, npm audit,
-              disabled lifecycle scripts, and required <code>.npmrc</code> settings.
+              Requires Dependabot coverage and validates npm locks, locked
+              installs, release cool-downs, exact versions, audit settings, and
+              disabled lifecycle scripts.
             </p>
             <a href="#security">Review npm controls</a>
           </article>
@@ -218,12 +217,12 @@ jobs:
           <h2 id="architecture-title">How a standards run moves through the system.</h2>
           <p>
             The reusable workflow checks out the caller repository, checks out
-            this standards repository at the workflow ref, runs the composite
-            action, and optionally updates a single PR comment.
+            this standards repository at the workflow ref, runs the categorized
+            policy action, and optionally updates a single PR comment.
           </p>
         </div>
         <figure class="workflow-figure">
-          <img src="assets/workflow-map.svg" alt="Workflow map showing caller repository, reusable workflow, standards action, checks, summary, and pull request comment.">
+          <img src="assets/workflow-map.svg" alt="Workflow map showing caller repository, reusable workflow, standards action, policy categories, summary, and pull request comment.">
           <figcaption>Static artifact map generated from the workflow and composite action structure in this repository.</figcaption>
         </figure>
       </section>
@@ -234,10 +233,21 @@ jobs:
           <h2 id="extend-title">Add repository-specific checks without forking the core.</h2>
           <p>
             Place focused shell checks in the caller repository and pass their
-            directory to the reusable workflow. Bundled checks run first.
+            directory to the reusable workflow. Bundled policy categories run first.
           </p>
         </div>
         <div class="stack">
+          <div class="code-copy">
+            <div class="code-header">
+              <span>Policy subset</span>
+              <button class="copy-button" type="button" data-copy="category-yaml">Copy</button>
+            </div>
+            <pre><code id="category-yaml">jobs:
+  repo-standards:
+    uses: OWNER/github-repo-standards/.github/workflows/repo-standards.yml@main
+    with:
+      policy-categories: documentation,security</code></pre>
+          </div>
           <div class="code-copy">
             <div class="code-header">
               <span>Workflow input</span>

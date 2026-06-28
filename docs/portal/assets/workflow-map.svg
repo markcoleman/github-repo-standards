@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1120" height="680" viewBox="0 0 1120 680" role="img" aria-labelledby="title desc">
   <title id="title">Repository standards workflow map</title>
-  <desc id="desc">A visual map of the caller repository, reusable workflow, standards action, checks, summary, and pull request comment.</desc>
+  <desc id="desc">A visual map of the caller repository, reusable workflow, standards action, policy categories, summary, and pull request comment.</desc>
   <defs>
     <linearGradient id="paper" x1="0" x2="1" y1="0" y2="1">
       <stop stop-color="#fffaf0" offset="0"/>
@@ -40,14 +40,14 @@
       <rect x="784" y="136" width="260" height="126" rx="8" fill="#ffffff" stroke="#d9d2c5"/>
       <text x="812" y="178" fill="#126b55" font-size="13" font-weight="800">COMPOSITE ACTION</text>
       <text x="812" y="211" fill="#15191e" font-size="24" font-weight="800">repo-standards</text>
-      <text x="812" y="238" fill="#5e6672" font-size="15">Runs the shell validator and writes a Markdown summary.</text>
+      <text x="812" y="238" fill="#5e6672" font-size="15">Runs categorized policies and writes a Markdown summary.</text>
     </g>
 
     <g filter="url(#shadow)">
       <rect x="188" y="362" width="220" height="120" rx="8" fill="#15191e"/>
-      <text x="216" y="403" fill="#57c5a4" font-size="13" font-weight="800">BUNDLED CHECKS</text>
-      <text x="216" y="435" fill="#f7f1e8" font-size="22" font-weight="800">README</text>
-      <text x="216" y="462" fill="#f7f1e8" font-size="22" font-weight="800">CODEOWNERS</text>
+      <text x="216" y="403" fill="#57c5a4" font-size="13" font-weight="800">POLICY CATEGORIES</text>
+      <text x="216" y="435" fill="#f7f1e8" font-size="22" font-weight="800">Docs + Identity</text>
+      <text x="216" y="462" fill="#f7f1e8" font-size="22" font-weight="800">Security + Supply</text>
     </g>
 
     <g filter="url(#shadow)">

@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-mapfile -t npm_projects < <(
+declare -a npm_projects=()
+while IFS= read -r package_file; do
+  npm_projects+=("$package_file")
+done < <(
   find . \
     -path './.git' -prune -o \
     -path './node_modules' -prune -o \
