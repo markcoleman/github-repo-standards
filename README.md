@@ -2,7 +2,7 @@
 
 Reusable GitHub Actions automation for lightweight repository standards. This repository provides a required-workflow entry point plus two local composite actions:
 
-- `.github/actions/repo-standards` runs the configured standards checks and writes a Markdown summary.
+- `.github/actions/repo-standards` runs categorized policy checks and writes a Markdown summary.
 - `.github/actions/repo-standards-comment` creates or updates one pull request status comment from that summary.
 - `.github/workflows/standards-pages.yml` publishes the standards developer portal to GitHub Pages as static HTML.
 
@@ -10,7 +10,7 @@ The bundled standards are intentionally small and broadly useful: every reposito
 
 ## What It Checks
 
-The default check action validates:
+The default policy action validates:
 
 | Area | Required signal |
 | --- | --- |
@@ -51,6 +51,26 @@ Replace `OWNER` with the account or organization that owns this repository.
 
 The workflow checks out the target repository, checks out this standards repository from the same workflow ref, runs the bundled standards action, and optionally publishes a pull request comment.
 
+## Organization-Wide Required Workflow
+
+For organization guardrails, keep the reusable workflow as one always-on required check and let the action report policy categories inside the summary. That keeps branch protection simple while giving developers a clear breakdown of documentation, identity, hygiene, security, and supply-chain failures.
+
+GitHub.com reusable workflows expose `job.workflow_repository` and `job.workflow_sha`, which this workflow uses to check out the exact standards repository revision that supplied the called workflow. This makes the workflow safe to pin from many repositories without copying composite action code into each one.
+
+To run only selected policy domains in a specialized organizational workflow, pass `policy-categories` as a comma-separated list:
+
+```yaml
+jobs:
+  repo-standards:
+    uses: OWNER/github-repo-standards/.github/workflows/repo-standards.yml@main
+    with:
+      policy-categories: documentation,security
+```
+
+Leave `policy-categories` empty, or set it to `all`, for the default full baseline.
+
+All bundled policy items share the same `.github/actions/repo-standards` composite action and shell runner. The policy category folders only organize the checks; they do not duplicate workflow logic, checkout behavior, summary generation, or pull request comment handling.
+
 ## Workflow Inputs
 
 The reusable workflow supports:
@@ -59,6 +79,7 @@ The reusable workflow supports:
 | --- | --- | --- |
 | `config-path` | `.github/repo-standards/config.env` | Optional caller repository config file. If the file is absent, bundled defaults are used. |
 | `check-directory` | `''` | Optional caller repository directory containing additional `*.sh` checks. |
+| `policy-categories` | `''` | Optional comma-separated list of bundled policy categories to run. Supported values are `documentation`, `repository-identity`, `developer-hygiene`, `security`, `supply-chain`, and `all`. Caller-specific `check-directory` checks still run when configured. |
 | `post-pr-comment` | `true` | Whether pull request runs should create or update the standards status comment. |
 
 For compatibility with the previous workflow layout, `.github/repo-standards/checks` is automatically included when it exists in the caller repository, even when `check-directory` is not set.
@@ -75,7 +96,7 @@ jobs:
       check-directory: .github/repo-standards/checks
 ```
 
-Checks are sourced in sorted order after the bundled checks. Each check can call:
+Bundled checks are sourced by category, then caller-specific checks are reported under `Custom policies`. Each custom check can call:
 
 ```bash
 pass "Check name" "Details"
@@ -142,10 +163,16 @@ On pull requests, the workflow posts a single status comment marked with `<!-- r
 
 ## Local Validation
 
-Run the bundled checks locally from this repository:
+Run all bundled policy categories locally from this repository:
 
 ```bash
 .github/actions/repo-standards/validate-repo-standards.sh
+```
+
+Run a focused category locally:
+
+```bash
+.github/actions/repo-standards/validate-repo-standards.sh --policy-category supply-chain
 ```
 
 Write the same Markdown summary used by GitHub Actions:

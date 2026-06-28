@@ -56,10 +56,10 @@
             <span>repo-standards.yml</span>
             <span class="panel-meta">5 min timeout</span>
           </div>
-          <div class="metric-grid" aria-label="Default standards">
+          <div class="metric-grid" aria-label="Default policy baseline">
             <div>
-              <span class="metric-value">10</span>
-              <span class="metric-label">Bundled checks</span>
+              <span class="metric-value">5</span>
+              <span class="metric-label">Policy categories</span>
             </div>
             <div>
               <span class="metric-value">0</span>
@@ -148,7 +148,7 @@ jobs:
 
       <section class="section-band" id="standards" aria-labelledby="standards-title">
         <div class="section-heading">
-          <p class="eyebrow">Default standards</p>
+          <p class="eyebrow">Default policy categories</p>
           <h2 id="standards-title">Small rules, high leverage.</h2>
         </div>
         <div class="standards-grid">
@@ -169,8 +169,8 @@ jobs:
               <h3>CODEOWNERS</h3>
             </div>
             <p>
-              Accepts <code>CODEOWNERS</code> or <code>.github/CODEOWNERS</code>
-              when at least one non-comment entry includes an owner.
+              Requires review routing through CODEOWNERS and ownership metadata
+              for team escalation, service catalogs, and platform reporting.
             </p>
             <a href="reference/repo-standards.md">Understand the rule</a>
           </article>
@@ -217,12 +217,12 @@ jobs:
           <h2 id="architecture-title">How a standards run moves through the system.</h2>
           <p>
             The reusable workflow checks out the caller repository, checks out
-            this standards repository at the workflow ref, runs the composite
-            action, and optionally updates a single PR comment.
+            this standards repository at the workflow ref, runs the categorized
+            policy action, and optionally updates a single PR comment.
           </p>
         </div>
         <figure class="workflow-figure">
-          <img src="assets/workflow-map.svg" alt="Workflow map showing caller repository, reusable workflow, standards action, checks, summary, and pull request comment.">
+          <img src="assets/workflow-map.svg" alt="Workflow map showing caller repository, reusable workflow, standards action, policy categories, summary, and pull request comment.">
           <figcaption>Static artifact map generated from the workflow and composite action structure in this repository.</figcaption>
         </figure>
       </section>
@@ -233,10 +233,21 @@ jobs:
           <h2 id="extend-title">Add repository-specific checks without forking the core.</h2>
           <p>
             Place focused shell checks in the caller repository and pass their
-            directory to the reusable workflow. Bundled checks run first.
+            directory to the reusable workflow. Bundled policy categories run first.
           </p>
         </div>
         <div class="stack">
+          <div class="code-copy">
+            <div class="code-header">
+              <span>Policy subset</span>
+              <button class="copy-button" type="button" data-copy="category-yaml">Copy</button>
+            </div>
+            <pre><code id="category-yaml">jobs:
+  repo-standards:
+    uses: OWNER/github-repo-standards/.github/workflows/repo-standards.yml@main
+    with:
+      policy-categories: documentation,security</code></pre>
+          </div>
           <div class="code-copy">
             <div class="code-header">
               <span>Workflow input</span>
