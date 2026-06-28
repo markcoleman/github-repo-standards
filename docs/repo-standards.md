@@ -131,6 +131,31 @@ The `Standards Developer Portal` workflow at `.github/workflows/standards-pages.
 
 Enable GitHub Pages with GitHub Actions as the source before relying on automatic publication.
 
+## Release Management
+
+The repository also includes a reusable release workflow at `.github/workflows/release-on-pr-complete.yml`. It can run directly in this repository or be called from a consuming repository after a pull request is closed.
+
+The workflow is intentionally opt-in on merged PRs. A PR creates a release only when it has one of:
+
+- `release:patch`
+- `release:minor`
+- `release:major`
+
+`release:skip`, `skip-changelog`, and `ignore-for-release` keep maintenance-only work out of release notes.
+
+When a labeled PR is merged, the workflow:
+
+1. Checks out the target repository and the release tooling from this standards repository.
+2. Finds the latest published release and uses it as the previous tag.
+3. Calculates the next semver tag unless a manual run supplies an explicit tag.
+4. Calls GitHub's generated release notes endpoint with `.github/release.yml`.
+5. Creates a draft GitHub release with a metadata table, compare range, source PR, target commit, and categorized notes.
+6. Comments the release URL back onto the completed PR.
+
+Draft is the default release state. This gives maintainers a review point for migration notes, rollout timing, and any context that generated notes cannot infer from labels and PR titles.
+
+Detailed adoption guidance lives in `docs/release-process.md`.
+
 ## Required Workflow Adoption
 
 Repository administrators can add this workflow as a required workflow in GitHub branch protection or rulesets after referencing it from each repository. The workflow supports `workflow_call`, which makes the standards implementation reusable while still allowing each consuming repository to decide when it runs.

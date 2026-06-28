@@ -5,6 +5,7 @@ Reusable GitHub Actions automation for lightweight repository standards. This re
 - `.github/actions/repo-standards` runs categorized policy checks and writes a Markdown summary.
 - `.github/actions/repo-standards-comment` creates or updates one pull request status comment from that summary.
 - `.github/workflows/standards-pages.yml` publishes the standards developer portal to GitHub Pages as static HTML.
+- `.github/workflows/release-on-pr-complete.yml` creates draft GitHub releases from completed pull requests with generated release notes.
 
 The bundled standards are intentionally small and broadly useful: every repository should have clear documentation, review ownership, secure contribution paths, local hygiene rules, dependency automation, security analysis, and team or catalog metadata.
 
@@ -160,6 +161,35 @@ The required standards workflow automatically detects npm projects by finding `p
 ## Pull Request Comment
 
 On pull requests, the workflow posts a single status comment marked with `<!-- repo-standards-status -->`. Later runs update that comment instead of creating duplicates. Set `post-pr-comment: false` to disable comment publishing while still running the checks and writing the GitHub Step Summary.
+
+## Release on PR Complete
+
+The repository includes an opt-in release workflow for teams that want a completed pull request to become a polished GitHub release. Add `release:patch`, `release:minor`, or `release:major` to a PR before merge. When the PR is merged to `main`, the workflow calculates the next semver tag from the previous published release, generates categorized notes with `.github/release.yml`, creates a draft release, and comments the release link back onto the PR.
+
+Unlabeled PRs are skipped by default so routine changes do not create surprise releases. Consuming repositories can call the reusable workflow and set `default-bump: patch` when every completed PR should create a draft patch release.
+
+```yaml
+name: Release on PR Complete
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    uses: OWNER/github-repo-standards/.github/workflows/release-on-pr-complete.yml@main
+```
+
+The generated release body starts with source PR, tag, previous release, compare range, and target commit metadata, followed by GitHub-generated release notes grouped into breaking changes, features, fixes, security, dependencies, documentation, developer experience, and other changes. See `docs/release-process.md` for the full label contract and workflow inputs.
 
 ## Local Validation
 
