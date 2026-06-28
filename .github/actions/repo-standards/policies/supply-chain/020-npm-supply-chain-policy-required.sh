@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-declare -a npm_projects=()
+npm_projects=()
 while IFS= read -r package_file; do
   npm_projects+=("$package_file")
 done < <(

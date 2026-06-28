@@ -2,97 +2,61 @@
 
 ## Purpose
 
-Repository standards make basic project expectations visible, automated, and consistent. The rules are deliberately simple and high-signal: every repository must have root documentation, ownership metadata, security reporting guidance, contributor workflow guidance, AI agent guardrails, ignore rules for local/generated artifacts, dependency update automation, security/supply-chain analysis, and ownership/catalog metadata.
+Repository standards make basic project expectations visible, automated, and consistent. The bundled rules stay deliberately small: documentation, ownership, local hygiene, security automation, and npm supply-chain controls.
 
-The bundled implementation is organized into policy categories:
-
-| Category | Directory | Purpose |
-| --- | --- | --- |
-| Documentation policies | `.github/actions/repo-standards/policies/documentation` | Repository entry points and contributor guidance. |
-| Repository identity policies | `.github/actions/repo-standards/policies/repository-identity` | Review routing, ownership, and catalog metadata. |
-| Developer hygiene policies | `.github/actions/repo-standards/policies/developer-hygiene` | AI agent guardrails and local/generated artifact hygiene. |
-| Security policies | `.github/actions/repo-standards/policies/security` | Vulnerability reporting and required security analysis automation. |
-| Supply-chain policies | `.github/actions/repo-standards/policies/supply-chain` | Dependency update automation and npm install reproducibility. |
-
-The reusable workflow still emits one stable required-check context, while the Markdown summary includes the policy category for each result. That balance keeps organization-level branch protection easy to manage without hiding which guardrail failed.
-
-Every category shares the same `.github/actions/repo-standards` composite action and shell validator. Adding a policy means adding a small sourced shell script to a category folder, not creating another workflow, checkout sequence, summary formatter, or pull request comment implementation.
-
-A README matters because it gives contributors and maintainers one reliable place to understand:
+Each rule favors a concrete signal over broad process language. Together they give contributors and maintainers one reliable place to understand:
 
 - what the repository contains,
 - how to build or validate it,
-- who the repository is for,
+- who owns review and escalation,
 - where deeper documentation lives.
 
-## Rule: Root README Required
+## Rule Summary
 
-The standards check requires:
+| Check | Required signal | Distinct validation |
+| --- | --- | --- |
+| Root README | `README.md` by default | File exists, is non-empty, and meets `MIN_README_BYTES`. |
+| CODEOWNERS | `CODEOWNERS` or `.github/CODEOWNERS` | At least one non-comment entry includes a pattern and owner. |
+| Security policy | `SECURITY.md` by default | File exists and is non-empty. |
+| Contributing guide | `CONTRIBUTING.md` by default | File exists and is non-empty. |
+| Agent guidance | `agent.md`, `AGENTS.md`, or `.github/AGENTS.md` | File exists and is non-empty. |
+| Git ignore rules | `.gitignore` by default | File exists and is non-empty. |
+| Dependency updates | `.github/dependabot.yml` by default | File exists, is non-empty, and declares a `package-ecosystem`. |
+| Security analysis | `.github/workflows/security-analysis.yml` by default | File exists, is non-empty, and names a recognizable analyzer such as CodeQL, OpenSSF Scorecard, dependency review, Trivy, SLSA, or SARIF upload. |
+| Ownership metadata | `ownership.yaml` or `catalog-info.yaml` by default | File exists, is non-empty, and identifies an owner or ownership source. |
+| npm supply-chain policy | Each detected npm project | Every `package.json` outside `.git` and `node_modules` passes `tools/validate-npm-policy.mjs`. |
 
-- a file named `README.md`,
-- located at the repository root,
-- with at least one byte of content by default.
+## Root README
 
 The path and minimum byte count are configurable in the bundled action config at `.github/actions/repo-standards/config.env`, or by passing a repository-specific config file through the reusable workflow. The policy-file checks also support path overrides for security, contributing, agent guidance, and ignore files. The config file supports simple `KEY=value` lines and comments; it is parsed as data instead of evaluated as shell.
 
-## Rule: CODEOWNERS Required
-
-The standards check requires:
-
-- a file named `CODEOWNERS` at the repository root, or `.github/CODEOWNERS`,
-- at least one non-comment owner entry,
-- at least one owner listed for that entry.
+## CODEOWNERS
 
 Ownership metadata helps reviewers, maintainers, and automation understand who is responsible for changes across the repository.
 
-
-## Rule: Security Policy Required
-
-The standards check requires:
-
-- a file named `SECURITY.md`,
-- located at the repository root by default,
-- with non-empty content that tells contributors how to report suspected vulnerabilities privately.
+## Security Policy
 
 Security policy documentation is a guardrail for incident response. It prevents contributors from disclosing sensitive findings in public issues and gives maintainers a single place to document secure development expectations such as least-privilege automation, secret rotation, dependency hygiene, and ownership of security-sensitive files.
 
-## Rule: Contributing Guide Required
-
-The standards check requires:
-
-- a file named `CONTRIBUTING.md`,
-- located at the repository root by default,
-- with non-empty content that explains the expected contributor workflow.
+## Contributing Guide
 
 Contributor documentation improves developer experience by making setup, validation, pull request expectations, documentation updates, screenshots, and review handoffs explicit. A healthy repository should not rely on tribal knowledge for routine contributions.
 
-## Rule: Agent Guidance Required
-
-The standards check requires one non-empty AI agent guidance file, accepted in this order by default:
-
-- `agent.md`,
-- `AGENTS.md`,
-- `.github/AGENTS.md`.
+## Agent Guidance
 
 Agent guidance documents how automated coding agents should work in the repository. It should describe preserved design intent, validation commands, documentation expectations, generated-artifact rules, and repository-specific constraints. This keeps future agent contributions aligned with maintainers instead of leaving agents to infer policy from existing files alone.
 
-## Rule: Root Git Ignore Required
-
-The standards check requires:
-
-- a file named `.gitignore`,
-- located at the repository root by default,
-- with non-empty content.
+## Root Git Ignore
 
 Ignore rules are a lightweight control for repository hygiene. They reduce accidental commits of local caches, editor state, build output, test artifacts, agent scratch files, and other generated files that should not become long-lived source artifacts.
 
-## Rule: Dependency Update Automation Required
+## Dependency Update Automation
 
-The standards check requires a non-empty `.github/dependabot.yml` by default with at least one `package-ecosystem` entry. For this repository the baseline covers GitHub Actions updates weekly, which keeps reusable workflow dependencies visible to maintainers.
+For this repository the Dependabot baseline covers GitHub Actions updates weekly, which keeps reusable workflow dependencies visible to maintainers.
 
-## Rule: Security and Supply Chain Analysis Required
+## Security and Supply Chain Analysis
 
-The standards check requires a non-empty security analysis workflow at `.github/workflows/security-analysis.yml` by default. The workflow should declare at least one recognizable analyzer such as CodeQL, OpenSSF Scorecard, dependency review, Trivy, SLSA provenance, or SARIF upload. This repository includes CodeQL analysis for the portal JavaScript and OpenSSF Scorecard results uploaded as SARIF.
+This repository includes CodeQL analysis for the portal JavaScript and OpenSSF Scorecard results uploaded as SARIF.
 
 Recommended GitHub platform controls to pair with the workflow include:
 
@@ -102,47 +66,40 @@ Recommended GitHub platform controls to pair with the workflow include:
 - least-privilege workflow permissions,
 - reviewed third-party actions and pinned action upgrade ownership.
 
-## Rule: Ownership Metadata Required
+## Ownership Metadata
 
-The standards check requires either `ownership.yaml` or `catalog-info.yaml` by default. `CODEOWNERS` routes review requests, while ownership metadata records human and platform context such as the owning team, security contact, escalation channel, service tier, system, lifecycle, and catalog annotations.
+`CODEOWNERS` routes review requests, while ownership metadata records human and platform context such as the owning team, security contact, escalation channel, service tier, system, lifecycle, and catalog annotations.
 
 This repository includes both:
 
 - `ownership.yaml` for repository governance and team escalation metadata,
 - `catalog-info.yaml` as a Backstage-compatible `Component` descriptor for software catalog ingestion.
 
-## Rule: npm Supply-Chain Policy Required When npm Is Detected
+## npm Supply-Chain Policy
 
 The standards check detects npm projects by finding `package.json` files outside `.git` and `node_modules`. When any npm project is present, every detected project must pass `tools/validate-npm-policy.mjs`.
 
-The npm policy requires:
+The npm project contract is:
 
 - a committed `package-lock.json` with a modern lockfile version and a root package entry;
 - a project `.npmrc` with `package-lock=true`, `save-exact=true`, `ignore-scripts=true`, `audit=true`, and `fund=false`;
 - a package script named `install:locked` that runs `npm ci --ignore-scripts`;
-- exact registry dependency versions in `dependencies`, `devDependencies`, and `optionalDependencies`, while allowing local and alias specifications such as `file:`, `workspace:`, `link:`, and `npm:`;
+- exact registry versions in `dependencies`, `devDependencies`, and `optionalDependencies`, while allowing local and alias specifications such as `file:`, `workspace:`, `link:`, and `npm:`;
 - lock-file dependency declarations that match `package.json`;
 - an `engines.npm` declaration so contributors and automation use a known npm baseline;
 - a repository policy at `.github/npm-supply-chain-policy.json` that requires a dependency release cool-down, lock-file usage, exact registry versions, disabled install scripts by default, npm audit, and disabled funding prompts.
 
 This rule keeps npm installs reproducible: required workflows must use `npm ci --ignore-scripts`, which installs only the package set and versions represented in the committed lock file and fails instead of rewriting dependency resolution.
 
-
 ## Secure npm Package Manager Skeleton
 
 The repository includes a minimal npm skeleton under `examples/npm-secure-skeleton` and a local package under `examples/safe-greeter`. The sample application imports `@example/safe-greeter` from the locked dependency tree and can be run with `npm start` after a locked install.
 
-The convention for npm projects is:
+Use the skeleton as a copyable example of the npm project contract above. It commits the package manifest, lock file, and `.npmrc`; installs with `npm ci --ignore-scripts`; and validates with:
 
-- commit `package.json`, `package-lock.json`, and the project `.npmrc`;
-- install in automation with `npm ci --ignore-scripts` only;
-- keep `package-lock=true` so npm writes and respects the lock file;
-- keep `save-exact=true` so new registry dependencies are pinned exactly;
-- keep `ignore-scripts=true` so dependency lifecycle scripts do not run by default;
-- keep `audit=true` so npm audit metadata remains available;
-- keep `fund=false` so automated installs do not emit funding prompts;
-- require a cool-down period before adopting newly published registry versions. This repository records that policy as `minimumReleaseAgeDays` in `.github/npm-supply-chain-policy.json`;
-- validate the convention with `node tools/validate-npm-policy.mjs examples/npm-secure-skeleton`.
+```bash
+node tools/validate-npm-policy.mjs examples/npm-secure-skeleton
+```
 
 The validation script is intentionally dependency-free. It verifies the policy file, required npm settings, locked install command, exact dependency specs for registry dependencies, and consistency between `package.json` and `package-lock.json`.
 
@@ -208,17 +165,19 @@ The workflow uses the shared comment action at `.github/actions/repo-standards-c
 
 Create another sorted shell script in the relevant bundled category directory, such as `.github/actions/repo-standards/policies/documentation`, or add caller-specific scripts under `.github/repo-standards/checks` in a consuming repository.
 
+The runner sources each check in the same shell, so checks can use `pass`, `fail`, and the shared `standards_*` helper functions for common file, byte-count, and pattern assertions.
+
 Example:
 
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ -f "LICENSE" ]]; then
-  pass "License is present" "LICENSE exists at the repository root."
-else
-  fail "License is present" "Add a root-level LICENSE file."
-fi
+check_name="License is present"
+license_path="LICENSE"
+
+standards_require_non_empty_file "$check_name" "$license_path" "Add a root-level LICENSE file." || return 0
+pass "$check_name" "$license_path exists and contains content."
 ```
 
 Use small focused checks so failures are easy to understand and safe to require across many repositories.

@@ -189,6 +189,87 @@ fail() {
   failures=$((failures + 1))
 }
 
+standards_require_non_empty_file() {
+  local check_name="$1"
+  local file_path="$2"
+  local missing_details="$3"
+
+  if [[ ! -f "$file_path" ]]; then
+    fail "$check_name" "$missing_details"
+    return 1
+  fi
+
+  if [[ ! -s "$file_path" ]]; then
+    fail "$check_name" "$file_path exists but is empty."
+    return 1
+  fi
+
+  return 0
+}
+
+standards_selected_file=""
+standards_select_non_empty_file() {
+  local check_name="$1"
+  local missing_details="$2"
+  local file_path
+  standards_selected_file=""
+  shift 2
+
+  for file_path in "$@"; do
+    if [[ -f "$file_path" ]]; then
+      standards_selected_file="$file_path"
+      standards_require_non_empty_file "$check_name" "$file_path" "$missing_details"
+      return $?
+    fi
+  done
+
+  fail "$check_name" "$missing_details"
+  return 1
+}
+
+standards_require_min_bytes() {
+  local check_name="$1"
+  local file_path="$2"
+  local min_bytes="$3"
+  local byte_count
+
+  byte_count="$(wc -c < "$file_path" | tr -d '[:space:]')"
+  if (( byte_count < min_bytes )); then
+    fail "$check_name" "$file_path must contain at least $min_bytes bytes; found $byte_count."
+    return 1
+  fi
+
+  return 0
+}
+
+standards_require_grep() {
+  local check_name="$1"
+  local file_path="$2"
+  local pattern="$3"
+  local failure_details="$4"
+
+  if ! grep -Eq "$pattern" "$file_path"; then
+    fail "$check_name" "$failure_details"
+    return 1
+  fi
+
+  return 0
+}
+
+standards_require_grep_i() {
+  local check_name="$1"
+  local file_path="$2"
+  local pattern="$3"
+  local failure_details="$4"
+
+  if ! grep -Eiq "$pattern" "$file_path"; then
+    fail "$check_name" "$failure_details"
+    return 1
+  fi
+
+  return 0
+}
+
 export -f pass
 export -f fail
 

@@ -2,25 +2,9 @@
 set -euo pipefail
 
 check_name="CODEOWNERS is present"
-codeowners_paths=("CODEOWNERS" ".github/CODEOWNERS")
-codeowners_file=""
-
-for path in "${codeowners_paths[@]}"; do
-  if [[ -f "$path" ]]; then
-    codeowners_file="$path"
-    break
-  fi
-done
-
-if [[ -z "$codeowners_file" ]]; then
-  fail "$check_name" "Expected CODEOWNERS or .github/CODEOWNERS."
-  return 0
-fi
-
-if [[ ! -s "$codeowners_file" ]]; then
-  fail "$check_name" "$codeowners_file exists but is empty."
-  return 0
-fi
+standards_select_non_empty_file "$check_name" "Expected CODEOWNERS or .github/CODEOWNERS." \
+  "CODEOWNERS" ".github/CODEOWNERS" || return 0
+codeowners_file="$standards_selected_file"
 
 if ! awk '
   /^[[:space:]]*#/ { next }

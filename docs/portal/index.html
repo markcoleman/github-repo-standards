@@ -154,19 +154,19 @@ jobs:
         <div class="standards-grid">
           <article class="standard-card">
             <div>
-              <p class="standard-kicker">Documentation</p>
-              <h3>Repository docs required</h3>
+              <p class="standard-kicker">Check 010</p>
+              <h3>Root README</h3>
             </div>
             <p>
-              Validates a root-level README and contributor guide so engineers
-              have a clear entry point and workflow expectations.
+              Confirms the configured README path exists, contains content,
+              and meets the minimum byte threshold.
             </p>
             <a href="reference/repo-standards.md">Read implementation notes</a>
           </article>
           <article class="standard-card">
             <div>
-              <p class="standard-kicker">Repository identity</p>
-              <h3>Ownership required</h3>
+              <p class="standard-kicker">Check 020</p>
+              <h3>CODEOWNERS</h3>
             </div>
             <p>
               Requires review routing through CODEOWNERS and ownership metadata
@@ -176,35 +176,35 @@ jobs:
           </article>
           <article class="standard-card">
             <div>
-              <p class="standard-kicker">Developer hygiene</p>
-              <h3>Local guardrails required</h3>
+              <p class="standard-kicker">Checks 030-060</p>
+              <h3>Repository guidance</h3>
             </div>
             <p>
-              Requires AI agent guidance and root ignore rules so local caches,
-              generated files, and automated contributions stay predictable.
+              Covers security reporting, contributor workflow, AI agent
+              guardrails, and root ignore rules for generated artifacts.
             </p>
-            <a href="reference/repo-standards.md">Review policy rules</a>
+            <a href="reference/repo-standards.md">Review rule details</a>
           </article>
           <article class="standard-card">
             <div>
-              <p class="standard-kicker">Security</p>
-              <h3>Security automation required</h3>
+              <p class="standard-kicker">Checks 070-090</p>
+              <h3>Automation and ownership</h3>
             </div>
             <p>
-              Requires vulnerability reporting guidance and a recognizable
-              security or supply-chain analysis workflow.
+              Looks for dependency update coverage, security or supply-chain
+              analysis, and ownership metadata for teams or catalogs.
             </p>
             <a href="#security">Explore platform controls</a>
           </article>
           <article class="standard-card">
             <div>
-              <p class="standard-kicker">Supply chain</p>
-              <h3>Dependency controls required</h3>
+              <p class="standard-kicker">Check 100</p>
+              <h3>npm hardening</h3>
             </div>
             <p>
-              Requires Dependabot coverage and validates npm locks, locked
-              installs, release cool-downs, exact versions, audit settings, and
-              disabled lifecycle scripts.
+              Finds npm projects and validates the lock file, locked install
+              script, release cool-down policy, exact versions, and hardened
+              <code>.npmrc</code> settings.
             </p>
             <a href="#security">Review npm controls</a>
           </article>
@@ -267,11 +267,11 @@ jobs:
             <pre><code id="check-shell">#!/usr/bin/env bash
 set -euo pipefail
 
-if [[ -f "LICENSE" ]]; then
-  pass "License is present" "LICENSE exists at the repository root."
-else
-  fail "License is present" "Add a root-level LICENSE file."
-fi</code></pre>
+check_name="License is present"
+license_path="LICENSE"
+
+standards_require_non_empty_file "$check_name" "$license_path" "Add a root-level LICENSE file." || return 0
+pass "$check_name" "$license_path exists and contains content."</code></pre>
           </div>
         </div>
       </section>
@@ -305,7 +305,7 @@ updates:
               <li>Require repository standards and security analysis checks before merge.</li>
               <li>Enable Dependabot alerts, security updates, secret scanning, and push protection.</li>
               <li>Review third-party actions and keep workflow permissions scoped to each job.</li>
-              <li>For npm projects, require <code>npm ci --ignore-scripts</code>, committed locks, a release cool-down, exact registry versions, and policy validation.</li>
+              <li>For npm projects, enforce the locked install and release cool-down contract.</li>
               <li>Upload SARIF from supported analyzers so findings appear in code scanning.</li>
             </ul>
           </div>
