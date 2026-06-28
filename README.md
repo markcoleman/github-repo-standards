@@ -6,22 +6,21 @@ Reusable GitHub Actions automation for lightweight repository standards. This re
 - `.github/actions/repo-standards-comment` creates or updates one pull request status comment from that summary.
 - `.github/workflows/standards-pages.yml` publishes the standards developer portal to GitHub Pages as static HTML.
 
-The bundled standards are intentionally small and broadly useful: every repository should have a non-empty root `README.md`, a populated `CODEOWNERS` file, security reporting guidance, contributor workflow documentation, AI agent guardrails, root ignore rules for local/generated artifacts, dependency update automation, security/supply-chain analysis, and ownership/catalog metadata.
+The bundled standards are intentionally small and broadly useful: every repository should have clear documentation, review ownership, secure contribution paths, local hygiene rules, dependency automation, security analysis, and team or catalog metadata.
 
 ## What It Checks
 
 The default check action validates:
 
-- `README.md` exists at the repository root and contains content.
-- `CODEOWNERS` or `.github/CODEOWNERS` exists and contains at least one owner entry.
-- `SECURITY.md` exists at the repository root and documents vulnerability reporting expectations.
-- `CONTRIBUTING.md` exists at the repository root and documents developer workflow expectations.
-- `agent.md`, `AGENTS.md`, or `.github/AGENTS.md` exists and documents AI agent guardrails.
-- `.gitignore` exists at the repository root and contains ignore rules for local/generated artifacts.
-- `.github/dependabot.yml` exists and declares dependency update automation coverage.
-- `.github/workflows/security-analysis.yml` exists and runs CodeQL, OpenSSF Scorecard, SARIF upload, or equivalent supply-chain analysis.
-- `ownership.yaml` or `catalog-info.yaml` exists and identifies repository ownership metadata for teams and portals.
-- every detected npm project with a `package.json` passes the npm supply-chain policy validator.
+| Area | Required signal |
+| --- | --- |
+| Project entry point | Non-empty root `README.md`, with configurable path and minimum bytes. |
+| Review routing | `CODEOWNERS` or `.github/CODEOWNERS` with at least one pattern and owner. |
+| Repository guidance | Non-empty security, contributing, agent, and ignore files. |
+| Dependency automation | `.github/dependabot.yml` with at least one `package-ecosystem`. |
+| Security analysis | `.github/workflows/security-analysis.yml` naming CodeQL, OpenSSF Scorecard, SARIF upload, or equivalent analysis. |
+| Ownership metadata | `ownership.yaml` or `catalog-info.yaml` identifying the responsible team or ownership source. |
+| npm supply chain | Every detected npm project passes `tools/validate-npm-policy.mjs`. |
 
 The README path, minimum byte count, policy file paths, security automation path, and ownership metadata path are configurable through a simple data-only config file. The bundled defaults live in `.github/actions/repo-standards/config.env`.
 
@@ -81,6 +80,7 @@ Checks are sourced in sorted order after the bundled checks. Each check can call
 ```bash
 pass "Check name" "Details"
 fail "Check name" "Details"
+standards_require_non_empty_file "Check name" "PATH" "Missing-file details"
 ```
 
 Example:
@@ -89,11 +89,11 @@ Example:
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ -f "LICENSE" ]]; then
-  pass "License is present" "LICENSE exists at the repository root."
-else
-  fail "License is present" "Add a root-level LICENSE file."
-fi
+check_name="License is present"
+license_path="LICENSE"
+
+standards_require_non_empty_file "$check_name" "$license_path" "Add a root-level LICENSE file." || return 0
+pass "$check_name" "$license_path exists and contains content."
 ```
 
 Keep checks deterministic and dependency-free unless a standard truly needs extra tooling.
@@ -114,13 +114,13 @@ These files are intentionally simple examples. Organizations should replace plac
 
 A minimal npm example lives in `examples/npm-secure-skeleton`. It demonstrates a locked install flow and a small script that imports the local `@example/safe-greeter` package from `examples/safe-greeter`. The example is intentionally small so consumers can copy the pattern without adding unnecessary registry dependencies.
 
-Supply-chain controls in the skeleton include:
+The skeleton demonstrates the npm project contract:
 
-- a committed `package-lock.json`;
-- a project `.npmrc` with `package-lock=true`, `save-exact=true`, `ignore-scripts=true`, `audit=true`, and `fund=false`;
-- an `install:locked` script that runs `npm ci --ignore-scripts` so installs fail rather than update the lock file;
-- a repository policy file at `.github/npm-supply-chain-policy.json` requiring a seven-day dependency cool-down period for newly selected registry versions;
-- `tools/validate-npm-policy.mjs`, which checks that the lock file, npm config, locked install command, exact dependency convention, npm engine declaration, audit/funding settings, and policy settings remain in place.
+- commit `package.json`, `package-lock.json`, and the project `.npmrc`;
+- install with `npm ci --ignore-scripts` through an `install:locked` script;
+- pin registry dependencies exactly and keep lock-file declarations in sync;
+- declare an npm engine and enforce the repository release cool-down policy;
+- validate with `tools/validate-npm-policy.mjs`.
 
 Use the example locally with:
 
@@ -132,9 +132,9 @@ cd ../..
 node tools/validate-npm-policy.mjs examples/npm-secure-skeleton
 ```
 
-When adding registry dependencies, wait until the version has satisfied the cool-down period in `.github/npm-supply-chain-policy.json`, pin the exact version in `package.json`, regenerate the lock file intentionally, and keep automation on `npm ci --ignore-scripts` instead of `npm install`.
+When adding registry dependencies, wait until the version has satisfied the cool-down period in `.github/npm-supply-chain-policy.json`, pin the exact version in `package.json`, regenerate the lock file intentionally, and keep CI on `npm ci --ignore-scripts`.
 
-The required standards workflow now automatically detects npm projects by finding `package.json` files outside `node_modules`. If any are present, each project must include a compliant `.npmrc`, committed lock file, npm engine declaration, exact registry dependency versions, and an `install:locked` script that only installs the package versions represented in the lock file.
+The required standards workflow automatically detects npm projects by finding `package.json` files outside `node_modules` and applies the same validator to each project.
 
 ## Pull Request Comment
 
